@@ -10,4 +10,8 @@ interface IGame {
     function move(uint8 move, uint256 gameId) external;
 
     function moveResult(uint256 moveId, uint256 gameId, uint8 result) external;
+
+    function name(uint256 gameId) external view returns (string);
+
+    function image(uint256 gameId) external view returns (string);
 }
