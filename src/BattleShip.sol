@@ -17,18 +17,6 @@ contract BattleShip is IGame {
 
     function moveResult(uint256 moveId, uint8 result, uint256 gameId) external {
         emit MoveResult(moveId, result, gameId);
-
-    function isValidMove(uint8 move, uint256 gameId) external view returns (bool){
-        return move % 5 > 0;
-    }
-
-    function move(uint8 move, uint256 gameId) external {
-        emit Move(number, move, 1, msg.sender);
-        number++;
-    }
-
-    function moveResult(uint256 moveId, uint256 gameId, uint8 result) external {
-        emit MoveResult(moveId, 1, result);
     }
 
     function name(uint256 gameId) external view returns (string memory){
