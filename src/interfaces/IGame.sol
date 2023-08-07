@@ -42,4 +42,8 @@ interface IGame {
         @param gameId Unique identifier for the game.
     */
     function moveResult(uint256 moveId, uint8 result, uint256 gameId) external;
+
+    function name(uint256 gameId) external view returns (string memory);
+
+    function image(uint256 gameId) external view returns (string memory);
 }

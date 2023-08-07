@@ -23,7 +23,7 @@ interface IGameRegistry {
     event TimeoutRequested(uint256 indexed gameId, address indexed requester);
 
     // Event emitted when a game setup is done
-    event GameSetup(uint256 indexed gameId, address indexed gameContract, uint256 movePrice, uint256 rewardBalance, uint256 timeoutSpan, bytes32 gameStateHash);
+    event GameSetup(uint256 indexed gameId, uint256 movePrice, uint256 rewardBalance, uint256 timeoutSpan, bytes32 gameStateHash);
 
     // Event emitted when a game answers a player move
     event MoveAnswered(uint256 indexed gameId, uint256 indexed moveId, MoveResult result, uint256 rewardValue, bool isGameOver);
@@ -31,17 +31,16 @@ interface IGameRegistry {
     /**
      * @dev Register a new game contract to the grid.
      *
-     * @param gameId Unique identifier for the game.
      * @param gameContract Address of the game contract.
      */
-    function registerGameContract(uint256 gameId, address gameContract) external;
+    function registerGame(address gameContract) external;
 
     /**
      * @dev Register a timeout request due to a game not processing moves in time.
      *
      * @param gameId Unique identifier for the game.
      */
-    function registerTimeoutRequest(uint256 gameId) external;
+    function requestTimeout(uint256 gameId) external;
 
     /**
      * @dev Setup a game with required parameters.
