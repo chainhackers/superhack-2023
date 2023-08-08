@@ -1,10 +1,27 @@
 import { publicProvider } from 'wagmi/providers/public';
 import {configureChains, createConfig} from "wagmi";
 import {polygonMumbai, polygon} from "@wagmi/core/chains";
-import { getDefaultWallets } from "@rainbow-me/rainbowkit";
+import {Chain, getDefaultWallets} from "@rainbow-me/rainbowkit";
+
+const localAnvil: Chain = {
+    id: 31_337,
+    name: 'Local Anvil',
+    network: 'anvil',
+    nativeCurrency: {
+        decimals: 18,
+        name: 'Ethereum',
+        symbol: 'ETH',
+    },
+    rpcUrls: {
+        public: { http: ['http://127.0.0.1:8545'] },
+        default: { http: ['http://127.0.0.1:8545'] },
+    },
+    testnet: true,
+};
+
 
 export const { chains, publicClient } = configureChains(
-    [polygon, polygonMumbai],
+    [polygon, polygonMumbai, localAnvil],
     [
         publicProvider()
     ]
