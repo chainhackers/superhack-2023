@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "outDir": "dist/",
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "module": "es6",
+    "target": "ES2022",
+    "jsx": "react",
+    "allowJs": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@abi": ["./src/api/contractAbis/abi.json"],
+      "@contractAddresses": ["./eth-sdk/contractAddresses.ts"],
+      "@store": ["./src/store/store.ts"],
+      "@stateTypes": ["./src/typings/type.d.ts"],
+    }
+  },
+  "include": [
+    "src/**/*",
+  ]
+}

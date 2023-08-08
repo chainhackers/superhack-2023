@@ -1,0 +1,4 @@
+export enum walletActionTypes {
+    CONNECT_WALLET = "CONNECT_WALLET",
+    DISCONNECT_WALLET = "DISCONNECT_WALLET",
+}

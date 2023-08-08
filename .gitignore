@@ -14,3 +14,7 @@ docs/
 .env
 
 .idea
+
+# Vite files
+node_modules
+dist
