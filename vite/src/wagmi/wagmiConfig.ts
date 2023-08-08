@@ -13,8 +13,8 @@ const localAnvil: Chain = {
         symbol: 'ETH',
     },
     rpcUrls: {
-        public: { http: ['http://127.0.0.1:8545'] },
-        default: { http: ['http://127.0.0.1:8545'] },
+        public: { http: [process.env.RPC_URL] },
+        default: { http: [process.env.RPC_URL] },
     },
     testnet: true,
 };
