@@ -98,8 +98,8 @@ class BattleshipGame(Game):
             self.w3.to_wei(game_id, "wei"),  # Convert to type uint256
             result[0]  # Status code
         ).transact()
-        logger.info(f'SEND TRANSACTION WITH RESULT {result[1]} TO CONTRACT',
-                    self.w3.eth.wait_for_transaction_receipt(transaction_hash)
+        logger.info(f'SEND TRANSACTION WITH RESULT {result[1]} TO CONTRACT'
+                    f'{self.w3.eth.wait_for_transaction_receipt(transaction_hash)}'
                     )
 
     def player_move(self, value):
