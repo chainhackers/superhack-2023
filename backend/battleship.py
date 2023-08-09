@@ -1,10 +1,11 @@
 import argparse
 import random
-from web3 import Web3, Account
+
+from web3 import Web3
 
 from constants import ABI
-from log_setup import setup_logger
 from game import Game
+from log_setup import setup_logger
 
 logger = setup_logger()
 
@@ -30,14 +31,14 @@ class BattleshipGame(Game):
                 direction = random.choice(['horizontal', 'vertical'])
                 if direction == 'horizontal':
                     row = random.randint(0, 9)
-                    col = random.randint(0, 10 - ship_size)  # размер корабля
+                    col = random.randint(0, 10 - ship_size)  # Ship size
                 else:
-                    row = random.randint(0, 10 - ship_size)  # размер корабля
+                    row = random.randint(0, 10 - ship_size)  # Ship size
                     col = random.randint(0, 9)
 
-                # Проверяем, что на данной позиции корабль может быть размещен
+                # Check
                 if all(self.board[row + (direction == 'vertical') * i][col + (direction == 'horizontal') * i] == 0 for i in range(ship_size)):
-                    # Размещаем корабль, изменяя соответствующие клетки на поле
+                    # Place ship and change cells
                     for i in range(ship_size):
                         self.board[row + (direction == 'vertical') * i][col + (direction == 'horizontal') * i] = 1
                     break
@@ -63,7 +64,7 @@ class BattleshipGame(Game):
 
     def calculate_result(self, guess):
         """
-        Find users result
+        Find users move result
         :param guess: int
         :return: tuple
         """
@@ -71,35 +72,46 @@ class BattleshipGame(Game):
             guess_row = guess // 10
             guess_col = guess % 10
 
-            if self.board[guess_row][guess_col] == 1:  # Юзер отгадал поле
+            if self.board[guess_row][guess_col] == 1:  # Player won
                 logger.info(f'User hit the cell with reward. Coord: {guess}')
                 self.board[guess_row][guess_col] = 'X'
-                logger.warn('Game should be reset as no cells')
+                if all(cell == '-' for row in self.board for cell in row):
+                    logger.warn('Game should be reset as no cells')
                 return 1, "Win"
-            else:  # Юзер промахнулся
+            else:  # Player lose
                 logger.info(f'User hit empty cell. Coord: {guess}')
                 self.board[guess_row][guess_col] = '-'
                 if all(cell == '-' for row in self.board for cell in row):
                     logger.warn('Game should be reset as no cells')
                 return 2, "Loss"
 
+    def call_move_result(self, move_id, game_id, result):
+        """
+        Calls to contract function moveResult with params:
+        :param move_id: int
+        :param game_id: int
+        :param result: int
+        :return:
+        """
+        transaction_hash = self.contract.functions.moveResult(
+            self.w3.to_wei(move_id, "wei"),  # Convert to type uint256
+            self.w3.to_wei(game_id, "wei"),  # Convert to type uint256
+            result[0]  # Status code
+        ).transact()
+        logger.info(f'SEND TRANSACTION WITH RESULT {result[1]} TO CONTRACT',
+                    self.w3.eth.wait_for_transaction_receipt(transaction_hash)
+                    )
+
     def player_move(self, value):
         """
         Call the contract's moveResult function after receiving players move.
         """
-        account = Account.from_key(private_key='d6fe48dc2afb1a5116feb93e330eb664e10b8056e5e8e78e6611f36a7338b285')
-        transaction = self.contract.functions.moveResult(
-            value['move'],
-            value["gameId"],
-            self.calculate_result(guess=value['move'])
-        ).build_transaction(
-            {
-                'nonce': self.w3.eth.get_transaction_count(account.address),
-                'gas': 2000000
-            })
-        signed_txn = account.signTransaction(transaction)
-        tx_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
-        tx_receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
+        arguments = {
+            'move_id': value['id'],
+            'game_id': value['gameId'],
+            'result': self.calculate_result(guess=value['move'])
+        }
+        self.call_move_result(**arguments)
 
     def handle_event(self, event):
         msg = {"id": event['args']['id'],
