@@ -12,10 +12,27 @@ pragma solidity 0.8.20;
     @notice to answer users' actions update the game state.
 */
 interface IGame {
+    // Event emitted to start game initialization flow
+    event Initialize(uint256 indexed gameId);
     // Event emitted when a player makes a move
-    event Move(uint256 id, uint8 coordinate, uint256 indexed gameId, address indexed player);
+    event Move(uint256 id, uint8 coordinate, uint256 indexed gameId, address indexed player, bytes32 indexed digest);
     // Event emitted when a game answers a player move
     event MoveResult(uint256 id, uint8 result, uint256 indexed gameId);
+
+    /**
+        @dev Initialize a game.
+        @dev This function is called by the grid contract.
+        @param gameId Unique identifier for the game.
+    */
+    function initializeGame(uint256 gameId) external;
+
+    /**
+        @dev Finish game initialization.
+        @dev This function is called by game backend microservices.
+        @param gameId Unique identifier for the game.
+        @param digest Digest of the game image.
+    */
+    function gameInitialized(uint256 gameId, bytes32 digest) external;
 
     /**
         @dev Check if a move is valid.
