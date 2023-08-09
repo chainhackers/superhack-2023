@@ -1,16 +1,22 @@
 name: test
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "v*.*.*"
+  pull_request:
+    branches:
+      - "main"
 
 env:
   FOUNDRY_PROFILE: ci
 
 jobs:
   check:
-    strategy:
-      fail-fast: true
 
-    name: Foundry project
+    name: InfiniQuilt contracts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,12 +29,19 @@ jobs:
           version: nightly
 
       - name: Run Forge build
+        working-directory: contracts
         run: |
           forge --version
           forge build --sizes
         id: build
 
+      - uses: actions/upload-artifact@v3
+        with:
+          name: interfaces-abi
+          path: contracts/out/I**sol/I**json
+
       - name: Run Forge tests
+        working-directory: contracts
         run: |
           forge test -vvv
         id: test
