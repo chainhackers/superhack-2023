@@ -29,6 +29,7 @@ jobs:
           version: nightly
 
       - name: Run Forge build
+        working-directory: contracts
         run: |
           forge --version
           forge build --sizes
@@ -37,7 +38,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: interfaces-abi
-          path: out/I**sol/I**json
+          path: contracts/out/I**sol/I**json
 
       - name: Run Forge tests
         run: |
