@@ -21,7 +21,7 @@ const localAnvil: Chain = {
 
 
 export const { chains, publicClient } = configureChains(
-    [polygon, polygonMumbai, localAnvil],
+    [localAnvil],
     [
         publicProvider()
     ]

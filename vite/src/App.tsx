@@ -5,6 +5,7 @@ import {useWalletClient} from "wagmi";
 import {ConnectButton} from "@rainbow-me/rainbowkit";
 import './styles.css';
 import * as Api from "./api/api"
+import GameView from "./components/gameView/GameView";
 
 const App: React.FC = () => {
     const dispatch = useDispatch();
@@ -31,6 +32,7 @@ const App: React.FC = () => {
             <ConnectButton/>
             <button onClick={handleSendMove}>Send move</button>
             <button onClick={handleGetGameInfo}>Get game info</button>
+            <GameView/>
         </div>
     );
 };
