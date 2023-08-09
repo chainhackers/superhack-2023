@@ -5,13 +5,22 @@ import "./interfaces/IGame.sol";
 
 contract BattleShip is IGame {
     uint256 public number;
+    bytes32 public digest;
+
+    function initializeGame(uint256 gameId) external {
+        emit Initialize(gameId);
+    }
+
+    function gameInitialized(uint256 gameId, bytes32 _digest) external {
+        digest = _digest;
+    }
 
     function isValidMove(uint8 coordinate, uint256 gameId) external view returns (bool){
         return coordinate % 5 > 0;
     }
 
     function move(uint8 coordinate, uint256 gameId) external {
-        emit Move(number, coordinate, gameId, msg.sender);
+        emit Move(number, coordinate, gameId, msg.sender, digest);
         number++;
     }
 
