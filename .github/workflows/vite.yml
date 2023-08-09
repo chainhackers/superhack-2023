@@ -30,8 +30,8 @@ jobs:
 
       - name: Put Git tag and time to .env file
         run: |
-          echo VITE_REACT_APP_GIT_TAG=${{  github.ref_name }} > ./dist/.env
-          echo VITE_REACT_APP_GIT_DATE="$(date +'%Y-%m-%d')" >> ./dist/.env
+          echo VITE_REACT_APP_GIT_TAG=${{  github.ref_name }} > .env
+          echo VITE_REACT_APP_GIT_DATE="$(date +'%Y-%m-%d')" >> .env
 
       - name: Build
         run: yarn build
