@@ -26,17 +26,21 @@ jobs:
         run: npm install -g yarn
 
       - name: Install Dependencies
+        working-directory: vite
         run: yarn install --frozen-lockfile
 
       - name: Put Git tag and time to .env file
+        working-directory: vite
         run: |
           echo VITE_REACT_APP_GIT_TAG=${{  github.ref_name }} > .env
           echo VITE_REACT_APP_GIT_DATE="$(date +'%Y-%m-%d')" >> .env
 
       - name: Build
+        working-directory: vite
         run: yarn build
 
       - name: Compress Build Artifact
+        working-directory: vite
         run: tar -czf quilt-dist-${{ github.run_id }}.tgz ./dist
 
       - name: Upload Build Artifact
@@ -44,7 +48,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: quilt-dist-${{ github.run_id }}
-          path: ./quilt-dist-${{ github.run_id }}.tgz
+          path: ./vite/quilt-dist-${{ github.run_id }}.tgz
 
   deploy:
     name: Deploy
