@@ -4,6 +4,7 @@ pragma solidity 0.8.20;
 import {Test, console2} from "forge-std/Test.sol";
 import {IGame} from "../src/interfaces/IGame.sol";
 import {BattleShip} from "../src/BattleShip.sol";
+import {ZoKratesStructs} from "../src/lib/ZoKratesStructs.sol";
 
 contract BattleShipTest is Test {
     BattleShip public battleShip;
@@ -32,6 +33,7 @@ contract BattleShipTest is Test {
     function testMoveResult(uint256 moveId, uint8 result, uint256 gameId) public {
         vm.expectEmit(address(battleShip));
         emit MoveResult(moveId, result, gameId);
-        battleShip.moveResult(moveId, result, gameId);
+        ZoKratesStructs.Proof memory proof;
+        battleShip.moveResult(moveId, result, gameId, proof);
     }
 }
