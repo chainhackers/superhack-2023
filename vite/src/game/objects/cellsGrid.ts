@@ -11,7 +11,6 @@ export default class CellsGrid {
     private _offsetY: number;
 
     private _isInteractable: boolean = true;
-
     constructor(scene: Scene, gridSize: number) {
         this.create(scene, gridSize);
     }

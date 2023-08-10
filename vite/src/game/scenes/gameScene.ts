@@ -16,12 +16,16 @@ export default class GameScene extends Phaser.Scene {
     private maxZoom: number = 2;
     private zoomStep: number = 0.05;
 
+    private spaceKey: Phaser.Input.Keyboard.Key;
+
     constructor() {
         super('GameScene');
     }
 
     create(): void {
         this.grid = new CellsGrid(this, this.gridSize);
+
+        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
         this.isDragging = false;
         this.input.on('pointerdown', this.startDrag, this);
@@ -31,9 +35,12 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update(): void {
+        this.grid.setCellsInteractable(!this.spaceKey.isDown)
+
         if (store.getState().api.status == ApiStatus.STARTED || store.getState().api.status == ApiStatus.PENDING
             || store.getState().api.status == ApiStatus.WAITING_RESPONSE && this.grid.isInteractable) {
             this.grid.setCellsInteractable(false);
+            this.stopDrag();
         } else if (store.getState().api.status == ApiStatus.SUCCESS || store.getState().api.status == ApiStatus.ERROR
             && !this.grid.isInteractable) {
             this.grid.setCellsInteractable(true);
@@ -41,14 +48,14 @@ export default class GameScene extends Phaser.Scene {
     }
 
     startDrag(pointer: Phaser.Input.Pointer): void {
-        if (!pointer.isDown) return;
+        if (!pointer.isDown || !this.spaceKey.isDown) return;
         this.isDragging = true;
         this.dragStart = { x: pointer.x, y: pointer.y };
         this.startCameraPos = { x: this.cameras.main.scrollX, y: this.cameras.main.scrollY };
     }
 
     doDrag(pointer: Phaser.Input.Pointer): void {
-        if (!this.isDragging) return;
+        if (!this.isDragging || !this.spaceKey.isDown) return;
         const diffX = pointer.x - this.dragStart.x;
         const diffY = pointer.y - this.dragStart.y;
         this.cameras.main.setScroll(this.startCameraPos.x - diffX, this.startCameraPos.y - diffY);
