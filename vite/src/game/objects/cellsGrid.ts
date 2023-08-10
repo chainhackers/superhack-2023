@@ -26,7 +26,7 @@ export default class CellsGrid {
                     .map((_, colIndex: number) => {
                         const x = colIndex * (this.CellSize + this.CellSpacing) + this.CellSize / 2 + this._offsetX;
                         const y = rowIndex * (this.CellSize + this.CellSpacing) + this.CellSize / 2 + this._offsetY;
-                        const cell = new Cell(scene, rowIndex * gridSize + colIndex, x, y, this.CellSize);
+                        const cell = new Cell(scene, rowIndex * gridSize + colIndex, x, y, this.CellSize, colIndex, rowIndex);
                         scene.add.existing(cell);
                         return cell;
                     });

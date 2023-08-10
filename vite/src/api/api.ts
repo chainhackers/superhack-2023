@@ -24,7 +24,7 @@ async function executeContract(
 
         const contract = await getGameContract(request.chain);
 
-        const options: ethers.PayableOverrides = await getOptions(request);
+        const options: ethers.PayableOverrides = await getOptions();
 
         const txPromise = contract[request.methodName](...request.getOptionalValues(), options);
         const tx = await Promise.race([txPromise, timeoutPromise]);
@@ -85,7 +85,7 @@ async function getGameContract(
     chain: string,
 ): Promise<ethers.Contract> {
     console.log('getGameContract: chain = ', chain);
-    const contractAddress: string = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+    const contractAddress: string = process.env.CONTRACT_ADDRESS;
     console.log('getGameContract: contractAddress = ', contractAddress);
     const signer = store.getState().wallet.signer;
     console.log('getGameContract: signer = ', signer);
@@ -93,7 +93,7 @@ async function getGameContract(
     return new ethers.Contract(contractAddress, abi, signer);
 }
 
-const getOptions = async (request: ContractMethodRequest): Promise<ethers.PayableOverrides> => {
+const getOptions = async (): Promise<ethers.PayableOverrides> => {
     return {
         gasLimit: 500000,
     };

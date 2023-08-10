@@ -50,8 +50,6 @@ export default class GameScene extends Phaser.Scene {
     }
 
     zoomCamera(pointer: Phaser.Input.Pointer, deltaX: number, deltaY: number, deltaZ: number): void {
-        console.log('Wheel event detected', pointer.deltaY);
-
         if (pointer.deltaY < 0) {
             this.zoomFactor = Phaser.Math.Clamp(this.zoomFactor + this.zoomStep, this.minZoom, this.maxZoom);
         } else {
