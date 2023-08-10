@@ -7,11 +7,8 @@ contract BattleShip is IGame {
     uint256 public number;
     bytes32 public digest;
 
-    function initializeGame(uint256 gameId) external {
-        emit Initialize(gameId);
-    }
-
-    function gameInitialized(uint256 gameId, bytes32 _digest) external {
+    function initGame(uint256 gameId, bytes32 _digest) external {
+        emit GameInit(gameId, digest);
         digest = _digest;
     }
 
@@ -20,11 +17,11 @@ contract BattleShip is IGame {
     }
 
     function move(uint8 coordinate, uint256 gameId) external {
-        emit Move(number, coordinate, gameId, msg.sender, digest);
+        emit Move(number, coordinate, gameId, msg.sender);
         number++;
     }
 
-    function moveResult(uint256 moveId, uint8 result, uint256 gameId) external {
+    function moveResult(uint256 moveId, uint8 result, uint256 gameId, ZoKratesStructs.Proof calldata proof) external {
         emit MoveResult(moveId, result, gameId);
     }
 
