@@ -1,9 +1,8 @@
 import Phaser from 'phaser';
-import Cell from '../objects/cell';
 import CellsGrid from "../objects/cellsGrid";
 import * as Constants from '../constants/gameConstants';
-
-const INITIAL_GAME_ID = BigInt(-1);
+import {store} from "@store";
+import {ApiStatus} from "@stateTypes";
 
 export default class GameScene extends Phaser.Scene {
     private readonly gridSize = Constants.GRID_SIZE;
@@ -31,6 +30,16 @@ export default class GameScene extends Phaser.Scene {
         this.input.on('wheel', this.zoomCamera, this);
     }
 
+    update(): void {
+        if (store.getState().api.status == ApiStatus.STARTED || store.getState().api.status == ApiStatus.PENDING
+            || store.getState().api.status == ApiStatus.WAITING_RESPONSE && this.grid.isInteractable) {
+            this.grid.setCellsInteractable(false);
+        } else if (store.getState().api.status == ApiStatus.SUCCESS || store.getState().api.status == ApiStatus.ERROR
+            && !this.grid.isInteractable) {
+            this.grid.setCellsInteractable(true);
+        }
+    }
+
     startDrag(pointer: Phaser.Input.Pointer): void {
         if (!pointer.isDown) return;
         this.isDragging = true;
@@ -49,7 +58,7 @@ export default class GameScene extends Phaser.Scene {
         this.isDragging = false;
     }
 
-    zoomCamera(pointer: Phaser.Input.Pointer, deltaX: number, deltaY: number, deltaZ: number): void {
+    zoomCamera(pointer: Phaser.Input.Pointer): void {
         if (pointer.deltaY < 0) {
             this.zoomFactor = Phaser.Math.Clamp(this.zoomFactor + this.zoomStep, this.minZoom, this.maxZoom);
         } else {

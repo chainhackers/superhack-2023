@@ -6,6 +6,7 @@ import {ConnectButton} from "@rainbow-me/rainbowkit";
 import './styles.css';
 import * as Api from "./api/api"
 import GameView from "./components/gameView/GameView";
+import Popup from "./components/Popup/Popup";
 
 const App: React.FC = () => {
     const dispatch = useDispatch();
@@ -29,10 +30,17 @@ const App: React.FC = () => {
 
     return (
         <div>
-            <ConnectButton/>
-            <button onClick={handleSendMove}>Send move</button>
-            <button onClick={handleGetGameInfo}>Get game info</button>
-            <GameView/>
+            <div id="navbar">
+                <div>
+                    <button onClick={handleSendMove}>Send move</button>
+                    <button onClick={handleGetGameInfo}>Get game info</button>
+                </div>
+                <ConnectButton/>
+            </div>
+            <div id="container">
+                <GameView/>
+                <Popup/>
+            </div>
         </div>
     );
 };

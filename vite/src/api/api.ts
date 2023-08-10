@@ -31,7 +31,7 @@ async function executeContract(
 
         console.log('executeContract: Transaction Hash = ', tx.hash);
 
-        store.dispatch(startTransaction(tx.hash));
+        store.dispatch(startTransaction(tx.hash, request.chain));
         store.dispatch(changeApiStatus(ApiStatus.PENDING));
 
         const receipt = await tx.wait();
@@ -62,6 +62,10 @@ export const sendMove = async (
         .withY(y);
     const resultEvents = await executeContract(request);
     const moveResult = resultEvents == null ? [] : resultEvents.map(event => event.args as unknown as MoveResult);
+    if (moveResult.length > 0) {
+        store.dispatch(endTransaction())
+        store.dispatch(changeApiStatus(ApiStatus.SUCCESS));
+    }
     console.log('sendMove: end = ', moveResult);
     return moveResult;
 }
@@ -77,6 +81,10 @@ export const getGameInfo = async (
         .withY(y);
     const resultEvents = await executeContract(request);
     const gameInfoResult = resultEvents == null ? [] : resultEvents.map(event => event.args as unknown as GameInfoResult);
+    if (store.getState().api.status != ApiStatus.ERROR) {
+        store.dispatch(endTransaction())
+        store.dispatch(changeApiStatus(ApiStatus.SUCCESS));
+    }
     console.log('getGameInfo: end = ', gameInfoResult);
     return gameInfoResult;
 }

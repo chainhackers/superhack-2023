@@ -10,6 +10,8 @@ export default class CellsGrid {
     private _offsetX: number;
     private _offsetY: number;
 
+    private _isInteractable: boolean = true;
+
     constructor(scene: Scene, gridSize: number) {
         this.create(scene, gridSize);
     }
@@ -47,6 +49,7 @@ export default class CellsGrid {
                 cell.isInteractable = interactable;
             });
         });
+        this._isInteractable = interactable;
     }
 
     public setCellsDisabled(): void {
@@ -56,6 +59,10 @@ export default class CellsGrid {
                 cell.setTint(Constants.CELL_DISABLED_TINT);
             });
         });
+    }
+
+    get isInteractable(): boolean {
+        return this._isInteractable;
     }
 
     get length(): number {
