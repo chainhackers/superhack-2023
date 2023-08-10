@@ -43,24 +43,8 @@ class BattleshipGame(Game):
                         self.board[row + (direction == 'vertical') * i][col + (direction == 'horizontal') * i] = 1
                     break
 
-    @property
-    def timeout(self):
-        return self.timeout
-
-    @timeout.setter
-    def timeout(self, num_in_sec):
-        self.timeout = num_in_sec
-
     def game_move_price(self, quantity):
         self.game_move_price = quantity
-
-    @property
-    def reward_balance(self):
-        return self.reward_balance
-
-    @reward_balance.setter
-    def reward_balance(self, value):
-        self.reward_balance = value
 
     def calculate_result(self, guess):
         """
@@ -98,9 +82,9 @@ class BattleshipGame(Game):
             self.w3.to_wei(game_id, "wei"),  # Convert to type uint256
             result[0]  # Status code
         ).transact()
-        logger.info(f'SEND TRANSACTION WITH RESULT {result[1]} TO CONTRACT'
-                    f'{self.w3.eth.wait_for_transaction_receipt(transaction_hash)}'
-                    )
+        logger.info(f'SEND TRANSACTION WITH RESULT {result[1]} TO CONTRACT')
+        logger.info(f'TRANSACTION DETAILS'
+                    f'{self.w3.eth.wait_for_transaction_receipt(transaction_hash)}')
 
     def player_move(self, value):
         """
