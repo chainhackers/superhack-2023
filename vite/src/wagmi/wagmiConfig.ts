@@ -4,25 +4,8 @@ import {polygonMumbai, polygon} from "@wagmi/core/chains";
 import {Chain, getDefaultWallets} from "@rainbow-me/rainbowkit";
 import {baseGoerli, goerli} from "viem/chains";
 
-const localAnvil: Chain = {
-    id: 31_337,
-    name: 'Local Anvil',
-    network: 'anvil',
-    nativeCurrency: {
-        decimals: 18,
-        name: 'Ethereum',
-        symbol: 'ETH',
-    },
-    rpcUrls: {
-        public: { http: [process.env.RPC_URL] },
-        default: { http: [process.env.RPC_URL] },
-    },
-    testnet: true,
-};
-
-
 export const { chains, publicClient } = configureChains(
-    [goerli,localAnvil],
+    [goerli],
     [
         publicProvider()
     ]

@@ -6,6 +6,8 @@ import {changeApiStatus} from "../store/api/apiActions";
 import {endTransaction, startTransaction} from "../store/game/gameActions";
 import abi from "@abi"
 
+const CONTRACT_ADDRESS: string = "0xf74ad58D1A3D5fe1298682202563517329b75461"
+
 async function executeContract(
     request: ContractMethodRequest,
 ): Promise<ethers.Event[] | null> {
@@ -93,7 +95,7 @@ async function getGameContract(
     chain: string,
 ): Promise<ethers.Contract> {
     console.log('getGameContract: chain = ', chain);
-    const contractAddress: string = process.env.CONTRACT_ADDRESS;
+    const contractAddress: string = CONTRACT_ADDRESS;
     console.log('getGameContract: contractAddress = ', contractAddress);
     const signer = store.getState().wallet.signer;
     console.log('getGameContract: signer = ', signer);
