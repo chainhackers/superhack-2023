@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "v*.*.*"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Setup Yarn
+        run: npm install -g yarn
+
+      - name: Install Dependencies
+        working-directory: vite
+        run: yarn install --frozen-lockfile
+
+      - name: Put Git tag and time to .env file
+        working-directory: vite
+        run: |
+          echo VITE_REACT_APP_GIT_TAG=${{  github.ref_name }} > .env
+          echo VITE_REACT_APP_GIT_DATE="$(date +'%Y-%m-%d')" >> .env
+
+      - name: Build
+        working-directory: vite
+        run: yarn build
+
+      - name: Compress Build Artifact
+        working-directory: vite
+        run: tar -czf quilt-dist-${{ github.run_id }}.tgz ./dist
+
+      - name: Upload Build Artifact
+        id: quilt-upload-dist
+        uses: actions/upload-artifact@v3
+        with:
+          name: quilt-dist-${{ github.run_id }}
+          path: ./vite/quilt-dist-${{ github.run_id }}.tgz
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    steps:
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+      - run: ls -l
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
+      - name: Copy artifact to server
+        run: scp ./quilt-dist-${{ github.run_id }}/quilt-dist-${{ github.run_id }}.tgz ${{ secrets.USERNAME }}@${{ secrets.HOST }}:${{ secrets.BUILDS_PATH }}
+      - name: restart deployed build
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "/home/${{ secrets.USERNAME }}/pm2-start.sh ${{ github.run_id }}"
