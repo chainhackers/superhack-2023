@@ -1,0 +1,29 @@
+import "hashes/poseidon/poseidon" as poseidon;
+
+def main( 
+    private field carrierX,
+    private field carrierY,
+    private field carrierO,
+    private field battleshipX,
+    private field battleshipY,
+    private field battleshipO,
+    private field cruiserX,
+    private field cruiserY,
+    private field cruiserO,
+    private field submarineX,
+    private field submarineY,
+    private field submarineO,
+    private field destroyerX,
+    private field destroyerY,
+    private field destroyerO
+) -> field 
+{
+    field[6] data = [0,
+                     carrierX * 100 + carrierY * 10 + carrierO,
+                     battleshipX * 100 + battleshipY * 10 + battleshipO,
+                     cruiserX * 100 + cruiserY * 10 + cruiserO,
+                     submarineX * 100 + submarineY + submarineO,
+                     destroyerX * 100 + destroyerY + destroyerO
+                     ]; 
+    return poseidon(data);
+}

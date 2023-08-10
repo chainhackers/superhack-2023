@@ -1,0 +1,5 @@
+./**/*.sol
+./**/*.key
+./**/out*
+./**/abi.json
+./**/witness
