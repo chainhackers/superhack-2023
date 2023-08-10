@@ -1,21 +1,28 @@
 import argparse
 import random
+import json
 
 from web3 import Web3
 
-from constants import ABI
+from constants import ABI, PATH_TO_ZOKRATES, PATH_TO_PROOF
+from utils.proof_parser import encode_data_from_proof_parser, parse
+from zokrates import zokrates_init, zokrates_move_validator
 from game import Game
 from log_setup import setup_logger
 
 logger = setup_logger()
 
+HORIZONTAL = 1
+VERTICAL = 0
 
 class BattleshipGame(Game):
     board = 0
 
-    def __init__(self, rpc_url, contract_address):
+    def __init__(self, rpc_url, contract_address, zokrates_executable_location):
         self._rpc_url = rpc_url
         self._contract_address = contract_address
+        self._zokrates_executable_location = zokrates_executable_location
+        self._zokrates_work_dir = PATH_TO_ZOKRATES
         self.board_size()
         self.calculate_filled_cells()
 
@@ -26,10 +33,12 @@ class BattleshipGame(Game):
         """
         Fill board with "ships".
         """
+        self.ships_positions = []
+    
         for ship_size in [5, 4, 3, 3, 2]:
             while True:
-                direction = random.choice(['horizontal', 'vertical'])
-                if direction == 'horizontal':
+                direction = random.choice([HORIZONTAL, VERTICAL])
+                if direction == HORIZONTAL:
                     row = random.randint(0, 9)
                     col = random.randint(0, 10 - ship_size)  # Ship size
                 else:
@@ -37,11 +46,16 @@ class BattleshipGame(Game):
                     col = random.randint(0, 9)
 
                 # Check
-                if all(self.board[row + (direction == 'vertical') * i][col + (direction == 'horizontal') * i] == 0 for i in range(ship_size)):
+                if all(self.board[row + (direction == VERTICAL) * i][col + (direction == HORIZONTAL) * i] == 0 for i in range(ship_size)):
                     # Place ship and change cells
                     for i in range(ship_size):
-                        self.board[row + (direction == 'vertical') * i][col + (direction == 'horizontal') * i] = 1
+                        self.board[row + (direction == VERTICAL) * i][col + (direction == HORIZONTAL) * i] = 1
+                    if direction == HORIZONTAL:
+                        self.ships_positions.extend([row, col, HORIZONTAL])
+                    else:
+                        self.ships_positions.extend([row, col, VERTICAL]) 
                     break
+        zokrates_init(self._zokrates_executable_location, self.ships_positions) 
 
     def game_move_price(self, quantity):
         self.game_move_price = quantity
@@ -77,10 +91,13 @@ class BattleshipGame(Game):
         :param result: int
         :return:
         """
+        with open(f"{PATH_TO_PROOF}/proof.json", "r") as f:
+            self.proof = json.load(f)
         transaction_hash = self.contract.functions.moveResult(
             self.w3.to_wei(move_id, "wei"),  # Convert to type uint256
             self.w3.to_wei(game_id, "wei"),  # Convert to type uint256
-            result[0]  # Status code
+            result[0],  # Status code
+            encode_data_from_proof_parser(self.proof)
         ).transact()
         logger.info(f'SEND TRANSACTION WITH RESULT {result[1]} TO CONTRACT')
         logger.info(f'TRANSACTION DETAILS'
@@ -93,13 +110,14 @@ class BattleshipGame(Game):
         arguments = {
             'move_id': value['id'],
             'game_id': value['gameId'],
-            'result': self.calculate_result(guess=value['move'])
+            'result': self.calculate_result(guess=value['coordinate']),
+            'proof': zokrates_move_validator(self._zokrates_executable_location, self.ships_positions, parse(self.proof).get("proof")) # TODO Change attribute in get method to real hash
         }
         self.call_move_result(**arguments)
 
     def handle_event(self, event):
         msg = {"id": event['args']['id'],
-               "move": event['args']['move'],
+               "coordinate": event['args']['coordinate'],
                "gameId": event['args']['gameId'],
                "player": event['args']['player'],
                }
@@ -117,13 +135,18 @@ class BattleshipGame(Game):
         self.contract = self.w3.eth.contract(
             address=checksum_address,
             abi=ABI)
-        event_name = "Move"
+        event_move = "Move"
+        event_init = "Initialize"
         last_block_number = self.w3.eth.block_number
-        event_filter = self.contract.events[event_name].create_filter(
+        event_move_filter = self.contract.events[event_move].create_filter(
+            fromBlock=last_block_number + 1)
+        event_init_filter = self.contract.events[event_init].create_filter(
             fromBlock=last_block_number + 1)
         while True:
-            for event in event_filter.get_new_entries():
-                self.handle_event(event)
+            for event in event_move_filter.get_new_entries():
+                self.handle_move_event(event)
+            for event in event_init_filter.get_new_entries():
+                self.game_init_event_handler(event) 
 
     @property
     def game_settings(self):
@@ -147,7 +170,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Event Listener for Ethereum Smart Contract")
     parser.add_argument("--rpc_url", required=True, help="RPC URL of Ethereum node")
     parser.add_argument("--contract_address", required=True, help="Address of the smart contract")
+    parser.add_argument("--zokrates_executable_location", required=True, help="Path to zokrates binary")
+    # parser.add_argument("--zokrates_work_dir", required=True, help="Path of the directory contains proover code and configuration files")
     args = parser.parse_args()
 
-    game = BattleshipGame(args.rpc_url, args.contract_address)
+    game = BattleshipGame(args.rpc_url, args.contract_address, args.zokrates_executable_location) #, args.zokrates_work_dir)
     game.subscribe_to_contract_events()
