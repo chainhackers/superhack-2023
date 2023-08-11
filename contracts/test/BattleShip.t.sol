@@ -33,7 +33,10 @@ contract BattleShipTest is Test {
     function testMoveResult(uint256 moveId, uint8 result, uint256 gameId) public {
         vm.expectEmit(address(battleShip));
         emit MoveResult(moveId, result, gameId);
+        uint256[] memory inputs = new uint256[](2);
+        inputs[0] = 1;
+        inputs[1] = 1;
         ZoKratesStructs.Proof memory proof;
-        battleShip.moveResult(moveId, result, gameId, proof);
+        battleShip.moveResult(moveId, result, gameId, inputs, proof);
     }
 }

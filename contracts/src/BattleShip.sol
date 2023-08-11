@@ -21,7 +21,7 @@ contract BattleShip is IGame {
         number++;
     }
 
-    function moveResult(uint256 moveId, uint8 result, uint256 gameId, ZoKratesStructs.Proof calldata proof) external {
+    function moveResult(uint256 moveId, uint8 result, uint256 gameId, uint256[] calldata inputs, ZoKratesStructs.Proof calldata proof) external {
         emit MoveResult(moveId, result, gameId);
     }
 
