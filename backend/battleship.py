@@ -15,16 +15,18 @@ logger = setup_logger()
 HORIZONTAL = 1
 VERTICAL = 0
 
+
 class BattleshipGame(Game):
     board = 0
 
-    def __init__(self, rpc_url, contract_address, zokrates_executable_location):
+    def __init__(self, rpc_url, contract_address, zokrates_executable_location, game_id):
         self._rpc_url = rpc_url
         self._contract_address = contract_address
         self._zokrates_executable_location = zokrates_executable_location
         self._zokrates_move_handler_dir = PATH_TO_MOVE_HANDLER
         self._zokrates_init_handler_dir = PATH_TO_INIT_HANDLER
         self.board_size()
+        self._game_id = game_id
         self.calculate_filled_cells()
 
     def board_size(self, size=10):
@@ -56,16 +58,38 @@ class BattleshipGame(Game):
                     else:
                         self.ships_positions.extend([row, col, VERTICAL]) 
                     break
-        self._zokrates_init_validator()  # TODO call gameInit contract method
+        self.call_game_init(self._zokrates_init_validator())
 
     def _zokrates_init_validator(self):
-        zokrates_prove(
+        """
+        Backend call's to init function of zokrates.
+        :return: zokrates proof.json file
+        """
+        return zokrates_prove(
             self._zokrates_executable_location,
             self._zokrates_init_handler_dir,
             *self.ships_positions
         )
 
+    def call_game_init(self, proof):
+        """
+        Calls to contract function gameInit with params:
+        :param proof:
+        :return:
+        """
+        self.contract.functions.gameInit(
+            self._game_id,
+            *parse_proof(proof),
+        ).transact()
+
     def _zokrates_move_validator(self, coordinate, digest):
+        """
+        Calls to zokrates proover with listed params.
+        Returns proof for current players move.
+        :param coordinate:
+        :param digest:
+        :return:
+        """
         return zokrates_prove(
             self._zokrates_executable_location,
             self._zokrates_move_handler_dir,
@@ -74,12 +98,9 @@ class BattleshipGame(Game):
             coordinate,
         )
 
-    def game_move_price(self, quantity):
-        self.game_move_price = quantity
-
     def calculate_result(self, guess):
         """
-        Find users move result
+        Find users move result using game logic.
         :param guess: int
         :return: tuple
         """
@@ -133,7 +154,7 @@ class BattleshipGame(Game):
         }
         self.call_move_result(**arguments)
 
-    def handle_event(self, event):
+    def handle_move_event(self, event):
         msg = {
             "id": event['args']['id'],
             "coordinate": event['args']['coordinate'],
@@ -141,14 +162,15 @@ class BattleshipGame(Game):
             "player": event['args']['player'],
             "digest": event['args']['digest']
         }
-        print(msg)
-        self.player_move(msg)
-        logger.info(msg)
+        if self._game_id == msg['gameId']:
+            print(msg)
+            self.player_move(msg)
+            logger.info(msg)
 
     def subscribe_to_contract_events(self):
         """
         Contract event listener.
-
+        Listen to event 'Player's Move' -> send it to game logic via handler.
         """
         checksum_address = Web3.to_checksum_address(self._contract_address)
         self.w3 = Web3(Web3.HTTPProvider(self._rpc_url))
@@ -156,17 +178,12 @@ class BattleshipGame(Game):
             address=checksum_address,
             abi=ABI)
         event_move = "Move"
-        event_init = "Initialize"
         last_block_number = self.w3.eth.block_number
         event_move_filter = self.contract.events[event_move].create_filter(
-            fromBlock=last_block_number + 1)
-        event_init_filter = self.contract.events[event_init].create_filter(
             fromBlock=last_block_number + 1)
         while True:
             for event in event_move_filter.get_new_entries():
                 self.handle_move_event(event)
-            for event in event_init_filter.get_new_entries():
-                self.game_init_event_handler(event) 
 
     @property
     def game_settings(self):
@@ -190,9 +207,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Event Listener for Ethereum Smart Contract")
     parser.add_argument("--rpc_url", required=True, help="RPC URL of Ethereum node")
     parser.add_argument("--contract_address", required=True, help="Address of the smart contract")
+    parser.add_argument("--game_id", required=True, help="Game identificator of registered game.")
     parser.add_argument("--zokrates_executable_location", required=True, help="Path to zokrates binary")
     # parser.add_argument("--zokrates_work_dir", required=True, help="Path of the directory contains proover code and configuration files")
     args = parser.parse_args()
 
-    game = BattleshipGame(args.rpc_url, args.contract_address, args.zokrates_executable_location) #, args.zokrates_work_dir)
+    game = BattleshipGame(args.rpc_url, args.contract_address, args.zokrates_executable_location, args.game_id) #, args.zokrates_work_dir)
     game.subscribe_to_contract_events()

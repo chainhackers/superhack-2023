@@ -15,7 +15,7 @@ import {ZoKratesStructs} from "../lib/ZoKratesStructs.sol";
 */
 interface IGame {
     // Event emitted when a new game is initialized
-    event GameInit(uint256 indexed gameId, bytes32 digest);
+    event GameInit(uint256 indexed gameId, uint256 digest);
     // Event emitted when a player makes a move
     event Move(uint256 id, uint8 coordinate, uint256 indexed gameId, address indexed player);
     // Event emitted when a game answers a player move
