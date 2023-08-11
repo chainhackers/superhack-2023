@@ -23,6 +23,7 @@ interface IGame {
 
 interface ITransaction {
     hash: string
+    network: string
     progress: number
 }
 

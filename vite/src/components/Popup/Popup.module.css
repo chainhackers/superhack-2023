@@ -1,0 +1,154 @@
+﻿.transactionPendingModal {
+    position: absolute;
+    z-index: 1000;
+    background-color: white;
+    border-radius: 12px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 5px -1px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border: 1px solid rgba(202, 205, 213, 1);
+}
+.frame10322 {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    align-self: stretch;
+}
+
+.frame10295 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.frame10293 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 576px;
+}
+.pendingTransaction {
+    font-family: "General Sans", serif;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 45px;
+    color: black;
+    margin-bottom: 24px;
+}
+.frame10389 {
+    height: 36px;
+    width: 576px;
+    position: relative;
+}
+.estimatedTime {
+    width: 377px;
+    font-family: "General Sans", serif;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 29px;
+    color: black;
+}
+.frame10373 {
+    background-color: rgba(249, 248, 255, 1);
+    border-radius: 4px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 1.5px;
+    top: -3px;
+}
+.num05d15h03m {
+    font-family: "General Sans", serif;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 26px;
+    color: rgba(15, 29, 64, 1);
+    text-align: right;
+}
+.frame10391 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 575px;
+}
+.frame10392 {
+    margin-bottom: 24px;
+    border-radius: 1px;
+    display: flex;
+    align-items: flex-start;
+    align-self: stretch;
+}
+.group3 {
+    background-color: rgba(220, 212, 255, 1);
+    border-radius: 7px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+}
+.rectangle4 {
+    height: 8px;
+    background-color: rgba(100, 51, 196, 1);
+    border-radius: 8px;
+    transition: width 2s ease-out;
+}
+.frame10393 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    align-self: stretch;
+}
+.labelTwo {
+    background-color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.spacer {
+    width: 576px;
+    height: 24px;
+    background-color: rgba(255, 255, 255, 0);
+    align-self: stretch;
+}
+@media screen and (max-width: 576px) {
+    .transactionPendingModal {
+        padding: 15px 20px;
+    }
+    .frame10293 {
+        margin-bottom: 24px;
+        width: 100%;
+    }
+    .pendingTransaction {
+        font-size: 20px;
+        line-height: 32px;
+    }
+    .frame10389 {
+        width: 100%;
+    }
+    .estimatedTime {
+        width: auto;
+    }
+    .frame10391 {
+        width: 100%;
+    }
+    .frame10392 {
+        margin-bottom: 12px;
+    }
+    .group3 {
+        width: 100%;
+    }
+    .rectangle4 {
+        height: 6px;
+    }
+    .labelTwo {
+        padding: 8px 10px;
+    }
+    .spacer {
+        width: 100%;
+    }
+}

@@ -5,7 +5,7 @@ import * as path from 'path'
 import { nodePolyfills }  from 'vite-plugin-node-polyfills'
 
 const aliases = {
-    '@abi': path.resolve(__dirname, './src/api/contractAbis/abi.json'),
+    '@iGridAbi': path.resolve(__dirname, './src/api/contractAbis/iGrid.json'),
     '@contractAddresses': path.resolve(__dirname, './eth-sdk/contractAddresses.ts'),
     '@store': path.resolve(__dirname, './src/store/store.ts'),
     '@stateTypes': path.resolve(__dirname, './src/typings/type.d.ts'),
