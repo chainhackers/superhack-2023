@@ -1,13 +1,22 @@
 ﻿.transactionPendingModal {
     position: absolute;
+    width: 200px;
+    left: 20px;
+    bottom: 60px;
     z-index: 1000;
     background-color: rgba(27, 28, 39, 0.8);
     border-radius: 12px;
     padding: 10px 20px;
     box-shadow: 0 4px 5px -1px rgba(0, 0, 0, 0.08);
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+}
+.statusIcon {
+    display: flex;
+    align-content: center;
+    align-items: center;
+    align-self: center;
+    font-size: 50px;
 }
 .frame10322 {
     display: flex;
@@ -20,29 +29,41 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    margin-bottom: 5px;
+}
+.frame10295 > * {
+    margin-bottom: 10px;
+}
+.frame10295 > *:last-child {
+    margin-bottom: 0;
 }
 .frame10293 {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 576px;
 }
 .pendingTransaction {
-    font-family: "General Sans", serif;
+    font-family: "Antonio", serif;
     font-size: 28px;
     font-weight: 600;
-    line-height: 45px;
     color: white;
-    margin-bottom: 24px;
+    margin-bottom: 0;
+}
+.transactionStatus {
+    width: 10px;
+    height: 10px;
+    background-color: white;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 2px;
 }
 .frame10389 {
     height: 36px;
-    width: 576px;
     position: relative;
 }
 .estimatedTime {
     width: 377px;
-    font-family: "General Sans", serif;
+    font-family: "Antonio", serif;
     font-size: 18px;
     font-weight: 600;
     line-height: 29px;
@@ -60,7 +81,7 @@
     top: -3px;
 }
 .num05d15h03m {
-    font-family: "General Sans", serif;
+    font-family: "Antonio", serif;
     font-size: 16px;
     font-weight: 600;
     line-height: 26px;
@@ -71,23 +92,12 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 575px;
 }
 .frame10392 {
-    margin-bottom: 24px;
     border-radius: 1px;
     display: flex;
     align-items: flex-start;
     align-self: stretch;
-}
-.group3 {
-    background-color: rgba(220, 212, 255, 1);
-    border-radius: 7px;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
 }
 .rectangle4 {
     height: 8px;
@@ -96,23 +106,8 @@
     transition: width 2s ease-out;
 }
 .frame10393 {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    align-self: stretch;
 }
 .labelTwo {
-    background-color: white;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.spacer {
-    width: 576px;
-    height: 24px;
-    background-color: rgba(255, 255, 255, 0);
-    align-self: stretch;
 }
 @media screen and (max-width: 576px) {
     .transactionPendingModal {
@@ -137,9 +132,6 @@
     }
     .frame10392 {
         margin-bottom: 12px;
-    }
-    .group3 {
-        width: 100%;
     }
     .rectangle4 {
         height: 6px;
