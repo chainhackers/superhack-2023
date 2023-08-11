@@ -2,19 +2,36 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/IGameRegistry.sol";
+import "./interfaces/IGrid.sol";
 
-contract GameRegistry is IGameRegistry {
+import "./lib/Utils.sol";
+
+import "../lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "../lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol";
+
+contract GameRegistry is IGameRegistry, IGrid, UUPSUpgradeable, OwnableUpgradeable, ERC1155Upgradeable {
+    uint256 public nextMoveId;
+
+    mapping(uint256 => Move) public moves;
+
+    mapping(uint256 => RegisteredGameEntry) public gameEntries;
+
     // Mapping of game address to game IDs
     mapping(address => uint256) public gameIds;
-    // Mapping of game IDs to game address
-    mapping(uint256 => address) public games;
 
-    uint256 public nextGameId = 1;
+    function initialize(string calldata _uri) public initializer {
+        __UUPSUpgradeable_init();
+        __Ownable_init();
+        __ERC1155_init(_uri);
+    }
 
-    function registerGame(address game) external override {
-        uint256 gameId = nextGameId++;
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+
+    function registerGame(address game, int256 x, int256 y) external override {
+        uint256 gameId = Utils.pair(x, y);
         gameIds[game] = gameId;
-        games[gameId] = game;
+        gameEntries[gameId] = RegisteredGameEntry(game, x, y);
         emit GameRegistered(gameIds[game], game, msg.sender);
     }
 
@@ -30,7 +47,26 @@ contract GameRegistry is IGameRegistry {
         emit MoveAnswered(gameId, moveId, result, rewardValue, isGameOver);
     }
 
+    function sendMove(int256 x, int256 y) external {
+        uint8 move = uint8(uint256((y * 10 + x) % 100));
+        uint256 gameId = 1;
+        emit MoveSent(nextMoveId, move, gameId, msg.sender);
+        nextMoveId++;
+    }
+
     function isGame(address game) external view returns (bool) {
         return gameIds[game] > 0;
+    }
+
+    function getGameInfo(int256 x, int256 y) external returns (uint256, address) {
+        return (1, 0x1B8E12F839BD4e73A47adDF76cF7F0097d74c14C);
+    }
+
+    function cellDetails(int256 x, int256 y) external view returns (address game, uint8 coordinate, uint256 tokenType, uint256 tokenId, string memory url){
+        game = 0x1B8E12F839BD4e73A47adDF76cF7F0097d74c14C;
+        coordinate = uint8(uint256((y * 10 + x) % 100));
+        tokenType = 1;
+        tokenId = coordinate;
+        url = "https://arweave.net/rip5RY1wf8gKBl5CxEAKQHG9tc09SqyMFwJDOYT8xX0/{id}";
     }
 }
