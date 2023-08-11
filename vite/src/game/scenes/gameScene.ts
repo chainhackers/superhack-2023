@@ -35,15 +35,14 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update(): void {
-        this.grid.setCellsInteractable(!this.spaceKey.isDown)
 
         if (store.getState().api.status == ApiStatus.STARTED || store.getState().api.status == ApiStatus.PENDING
             || store.getState().api.status == ApiStatus.WAITING_RESPONSE && this.grid.isInteractable) {
             this.grid.setCellsInteractable(false);
             this.stopDrag();
-        } else if (store.getState().api.status == ApiStatus.SUCCESS || store.getState().api.status == ApiStatus.ERROR
-            && !this.grid.isInteractable) {
-            this.grid.setCellsInteractable(true);
+        } else if (store.getState().api.status == ApiStatus.IDLE ||store.getState().api.status == ApiStatus.SUCCESS
+            || store.getState().api.status == ApiStatus.ERROR) {
+            this.grid.setCellsInteractable(!this.spaceKey.isDown)
         }
     }
 
