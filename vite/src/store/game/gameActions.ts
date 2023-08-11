@@ -33,11 +33,12 @@ export function SetMoveResult(moveResult: number): SetMoveResultAction {
     }
 }
 
-export function startTransaction(hash: string): StartTransactionAction {
+export function startTransaction(hash: string, network: string): StartTransactionAction {
     return {
         type: gameActionTypes.START_TRANSACTION,
         transaction: {
             hash: hash,
+            network: network,
             progress: 0,
         }
     }

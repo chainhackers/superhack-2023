@@ -13,7 +13,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "paths": {
-      "@abi": ["./src/api/contractAbis/abi.json"],
+      "@iGridAbi": ["./src/api/contractAbis/iGrid.json"],
       "@contractAddresses": ["./eth-sdk/contractAddresses.ts"],
       "@store": ["./src/store/store.ts"],
       "@stateTypes": ["./src/typings/type.d.ts"],
