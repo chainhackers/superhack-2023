@@ -7,7 +7,7 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH } from '../../game/constants/gameConstants'
 const GameView: React.FC = () => {
     const elementId: string = 'phaser-game';
     useEffect(() => {
-        const backgroundColor = "#2bc48a";
+        const backgroundColor = "#20293A";
 
         const config = {
             type: Phaser.AUTO,
