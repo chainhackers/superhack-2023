@@ -11,45 +11,12 @@ class Game(ABC):
         """
         ...
 
-    @property
-    def timeout(self):
-        """
-        The duration within which the backend must respond to player moves.
-        :return: int
-        """
-        return self.timeout
-
-    @timeout.setter
-    @abstractmethod
-    def timeout(self, num_in_sec):
-        """
-        The duration within which the backend must respond to player moves.
-        :param num_in_sec: int
-        :return: None
-        """
-        ...
-
     @abstractmethod
     def game_move_price(self, quantity):
         """
         The fee each user pays to make move in the game
         :param quantity: int
         :return: None
-        """
-        ...
-
-    @property
-    def reward_balance(self):
-        """
-        The initial reward balance for the game.
-        """
-        return self.reward_balance
-
-    @reward_balance.setter
-    @abstractmethod
-    def reward_balance(self, value):
-        """
-        reward_balance property attr setter
         """
         ...
 

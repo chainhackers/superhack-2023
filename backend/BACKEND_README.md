@@ -23,10 +23,17 @@ cast send --from 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --unlocked 0xe7f1725
 # This one is optional, it is move sender so you can just run event_generator.py
 ```
 ## Python
-To run python scripts you have to install python, web3.py lib.
+To run python scripts you have to install python, create and activate virtual environment
+
 ```
-pip install web3py
+python -m venv venv
 ```
+for windows
+```
+source venv/Scripts/activate 
+pip install -r requirements.txt
+```
+
 The game logic is at battleship.py file, so you should run it using command:
 ```
 python battleship.py --rpc_url "http://localhost:8545/" --contract_address "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
@@ -34,7 +41,7 @@ python battleship.py --rpc_url "http://localhost:8545/" --contract_address "0xe7
 If you do not want to run events manually there is a script that will generate players moves to each cell from 0 to 99.
 Run it using command:
 ```
-python event_generator.py
+python ./local_testing/event_generator.py
 ```
 To see the result look at log_file ./log.txt
 Each user's move will be there with exact info e.g
