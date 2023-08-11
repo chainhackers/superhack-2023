@@ -10,6 +10,10 @@ on:
     branches:
       - "main"
 
+env:
+  WAGMI_PROJECT_ID: 2e8163a947f049c4e52c5ea7f2e4817b
+  CONTRACT_ADDRESS: 0xf74ad58D1A3D5fe1298682202563517329b75461
+
 jobs:
   build:
     runs-on: ubuntu-latest
