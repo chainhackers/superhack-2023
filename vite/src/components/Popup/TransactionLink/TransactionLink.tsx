@@ -14,7 +14,7 @@ export const TransactionLink: React.FC<TransactionLinkProps> = memo(({ transacti
 
     return (
         <a href={transactionLink} target="_blank" rel="noopener noreferrer" className={classes.label}>
-            See on Explorer
+            See on Explorer↗
         </a>
     );
 });

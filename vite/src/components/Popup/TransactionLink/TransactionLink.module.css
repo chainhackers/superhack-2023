@@ -1,19 +1,13 @@
 ﻿.label {
-    font-family: "General Sans", serif;
+    font-family: "Antonio", serif;
     font-size: 14px;
     font-weight: 600;
-    line-height: 22px;
-    color: rgba(130, 71, 229, 1);
+    color: #428be0;
     text-align: center;
     text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    background-color: rgba(220, 212, 255, 1);
-    transition: background-color 0.3s ease-in-out;
 }
 .label:hover {
-    background-color: rgba(130, 71, 229, 1);
-    color: white;
+    color: #55a3ff;
 }
 @media screen and (max-width: 576px) {
     .label {

@@ -46,8 +46,11 @@ export const Popup: React.FC = () => {
 
     return (
         <>
-            <Overlay/>
+            {/*<Overlay/>*/}
             <div className={classes.transactionPendingModal}>
+                <div className={classes.statusIcon}>
+                    {getIcon(apiStatus)}
+                </div>
                 <div className={classes.frame10295}>
                     <div className={classes.frame10293}>
                         <p className={classes.pendingTransaction}>
@@ -57,34 +60,54 @@ export const Popup: React.FC = () => {
                     <div className={classes.frame10391}>
                         <div className={classes.frame10392}>
                             <div className={classes.group3}>
-                                <div className={classes.rectangle4} style={{ width: `${progressView}%` }}/>
+                                <div className={classes.transactionStatus}
+                                     style={{ backgroundColor: progress >= 1 ? "white" : "gray" }}></div>
+                                <div className={classes.transactionStatus}
+                                     style={{ backgroundColor: progress >= 2 ? "white" : "gray" }}></div>
+                                <div className={classes.transactionStatus}
+                                     style={{ backgroundColor: progress >= 3 ? "white" : "gray" }}></div>
+                                <div className={classes.transactionStatus}
+                                     style={{ backgroundColor: progress >= 4 ? "white" : "gray" }}></div>
                             </div>
                         </div>
-                        <div className={classes.frame10393}>
-                            <div className={classes.labelTwo}>
-                                <TransactionLink transactionHash={transaction?.hash} transactionNetwork={transaction?.network} />
-                            </div>
-                        </div>
+
                     </div>
+                    <TransactionLink transactionHash={transaction?.hash} transactionNetwork={transaction?.network} />
                 </div>
-                <div className={classes.spacer}></div>
             </div>
         </>
     );
 };
 
+const getIcon = (apiStatus: ApiStatus): string => {
+    switch (apiStatus) {
+        case ApiStatus.STARTED:
+            return '🏦';
+        case ApiStatus.PENDING:
+            return '🌐';
+        case ApiStatus.WAITING_RESPONSE:
+            return '🕐';
+        case ApiStatus.SUCCESS:
+            return '✅';
+        case ApiStatus.ERROR:
+            return '❌';
+        default:
+            return '';
+    }
+}
+
 const getContent = (apiStatus: ApiStatus): string => {
     switch (apiStatus) {
         case ApiStatus.STARTED:
-            return '🏦 Transaction requested, check your wallet';
+            return 'CONFIRMATION';
         case ApiStatus.PENDING:
-            return '🌐 Pending transaction';
+            return 'PENDING';
         case ApiStatus.WAITING_RESPONSE:
-            return '🕐 Waiting for response';
+            return 'WAITING RESPONSE';
         case ApiStatus.SUCCESS:
-            return '✅ Transaction success';
+            return 'SUCCESS';
         case ApiStatus.ERROR:
-            return '❌ Transaction error';
+            return 'ERROR';
         default:
             return '';
     }
@@ -93,13 +116,13 @@ const getContent = (apiStatus: ApiStatus): string => {
 const getProgress = (apiStatus: ApiStatus): number => {
     switch (apiStatus) {
         case ApiStatus.STARTED:
-            return 25;
+            return 1;
         case ApiStatus.PENDING:
-            return 80;
+            return 2;
         case ApiStatus.WAITING_RESPONSE:
-            return 90;
+            return 3;
         case ApiStatus.SUCCESS:
-            return 100;
+            return 4;
         case ApiStatus.ERROR:
             return 0;
         default:
