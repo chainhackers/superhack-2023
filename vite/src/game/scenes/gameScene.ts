@@ -12,7 +12,7 @@ export default class GameScene extends Phaser.Scene {
     private startCameraPos: { x: number, y: number };
 
     private zoomFactor: number = 1;
-    private minZoom: number = 0.001;
+    private minZoom: number = 0.7;
     private maxZoom: number = 2;
     private zoomStep: number = 0.05;
 
