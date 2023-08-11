@@ -4,16 +4,14 @@ import {store} from "@store";
 import {ApiStatus} from "@stateTypes";
 import {changeApiStatus} from "../store/api/apiActions";
 import {endTransaction, startTransaction} from "../store/game/gameActions";
-import abi from "@abi"
-
-const CONTRACT_ADDRESS: string = "0xf74ad58D1A3D5fe1298682202563517329b75461"
+import iGridAbi from "@iGridAbi"
 
 async function executeContract(
     request: ContractMethodRequest,
 ): Promise<ethers.Event[] | null> {
     store.dispatch(changeApiStatus(ApiStatus.STARTED));
 
-    // Промис, который будет отклонен через 60 секунд
+    // Promise will be declined in 60 seconds
     const timeoutPromise = new Promise((reject) => {
         setTimeout(() => reject(new Error('Transaction timed out')), 60000);
     });
@@ -95,12 +93,12 @@ async function getGameContract(
     chain: string,
 ): Promise<ethers.Contract> {
     console.log('getGameContract: chain = ', chain);
-    const contractAddress: string = CONTRACT_ADDRESS;
+    const contractAddress: string = process.env.CONTRACT_ADDRESS;
     console.log('getGameContract: contractAddress = ', contractAddress);
     const signer = store.getState().wallet.signer;
     console.log('getGameContract: signer = ', signer);
-    console.log('getGameContract: chainAbi = ', abi);
-    return new ethers.Contract(contractAddress, abi, signer);
+    console.log('getGameContract: chainAbi = ', iGridAbi);
+    return new ethers.Contract(contractAddress, iGridAbi, signer);
 }
 
 const getOptions = async (): Promise<ethers.PayableOverrides> => {

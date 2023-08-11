@@ -34,7 +34,7 @@ export const Popup: React.FC = () => {
             setTimeout(() => {
                 setIsVisible(false);
                 setProgressView(0);
-            }, 2000); // Задержка 2 секунды
+            }, 2000); // 2 seconds delay
         }
 
         return () => {
