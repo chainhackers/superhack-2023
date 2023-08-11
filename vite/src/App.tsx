@@ -31,10 +31,7 @@ const App: React.FC = () => {
     return (
         <div>
             <div id="navbar">
-                <div>
-                    <button onClick={handleSendMove}>Send move</button>
-                    <button onClick={handleGetGameInfo}>Get game info</button>
-                </div>
+                <div></div>
                 <ConnectButton/>
             </div>
             <div id="container">
