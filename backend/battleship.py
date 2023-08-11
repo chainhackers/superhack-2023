@@ -4,9 +4,9 @@ import json
 
 from web3 import Web3
 
-from constants import ABI, PATH_TO_ZOKRATES, PATH_TO_PROOF
+from constants import ABI, PATH_TO_INIT_HANDLER, PATH_TO_MOVE_HANDLER
 from utils import parse_proof
-from zokrates import zokrates_init, zokrates_move_validator
+from zokrates import zokrates_prove
 from game import Game
 from log_setup import setup_logger
 
@@ -22,7 +22,8 @@ class BattleshipGame(Game):
         self._rpc_url = rpc_url
         self._contract_address = contract_address
         self._zokrates_executable_location = zokrates_executable_location
-        self._zokrates_work_dir = PATH_TO_ZOKRATES
+        self._zokrates_move_handler_dir = PATH_TO_MOVE_HANDLER
+        self._zokrates_init_handler_dir = PATH_TO_INIT_HANDLER
         self.board_size()
         self.calculate_filled_cells()
 
@@ -55,7 +56,23 @@ class BattleshipGame(Game):
                     else:
                         self.ships_positions.extend([row, col, VERTICAL]) 
                     break
-        zokrates_init(self._zokrates_executable_location, self.ships_positions) 
+        self._zokrates_init_validator()  # TODO call gameInit contract method
+
+    def _zokrates_init_validator(self):
+        zokrates_prove(
+            self._zokrates_executable_location,
+            self._zokrates_init_handler_dir,
+            *self.ships_positions
+        )
+
+    def _zokrates_move_validator(self, coordinate, digest):
+        return zokrates_prove(
+            self._zokrates_executable_location,
+            self._zokrates_move_handler_dir,
+            *self.ships_positions,
+            digest,
+            coordinate,
+        )
 
     def game_move_price(self, quantity):
         self.game_move_price = quantity
@@ -83,7 +100,7 @@ class BattleshipGame(Game):
                     logger.warn('Game should be reset as no cells')
                 return 2, "Loss"
 
-    def call_move_result(self, move_id, game_id, result):
+    def call_move_result(self, move_id, game_id, result, proof):
         """
         Calls to contract function moveResult with params:
         :param move_id: int
@@ -91,13 +108,11 @@ class BattleshipGame(Game):
         :param result: int
         :return:
         """
-        with open(f"{PATH_TO_PROOF}/proof.json", "r") as f:
-            self.proof = json.load(f)
         transaction_hash = self.contract.functions.moveResult(
             self.w3.to_wei(move_id, "wei"),  # Convert to type uint256
             self.w3.to_wei(game_id, "wei"),  # Convert to type uint256
             result[0],  # Status code
-            *parse_proof(self.proof)
+            *parse_proof(proof)
         ).transact()
         logger.info(f'SEND TRANSACTION WITH RESULT {result[1]} TO CONTRACT')
         logger.info(f'TRANSACTION DETAILS'
@@ -111,16 +126,21 @@ class BattleshipGame(Game):
             'move_id': value['id'],
             'game_id': value['gameId'],
             'result': self.calculate_result(guess=value['coordinate']),
-            'proof': zokrates_move_validator(self._zokrates_executable_location, self.ships_positions, value['hash'], value['coordinate']) # TODO Change attribute in get method to real hash
+            'proof': self._zokrates_move_validator(
+                digest=value['digest'],
+                coordinate=value['coordinate']
+            )
         }
         self.call_move_result(**arguments)
 
     def handle_event(self, event):
-        msg = {"id": event['args']['id'],
-               "coordinate": event['args']['coordinate'],
-               "gameId": event['args']['gameId'],
-               "player": event['args']['player'],
-               }
+        msg = {
+            "id": event['args']['id'],
+            "coordinate": event['args']['coordinate'],
+            "gameId": event['args']['gameId'],
+            "player": event['args']['player'],
+            "digest": event['args']['digest']
+        }
         print(msg)
         self.player_move(msg)
         logger.info(msg)
