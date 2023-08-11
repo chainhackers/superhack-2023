@@ -5,7 +5,7 @@ import json
 from web3 import Web3
 
 from constants import ABI, PATH_TO_ZOKRATES, PATH_TO_PROOF
-from utils.proof_parser import encode_data_from_proof_parser, parse
+from utils import parse_proof
 from zokrates import zokrates_init, zokrates_move_validator
 from game import Game
 from log_setup import setup_logger
@@ -97,7 +97,7 @@ class BattleshipGame(Game):
             self.w3.to_wei(move_id, "wei"),  # Convert to type uint256
             self.w3.to_wei(game_id, "wei"),  # Convert to type uint256
             result[0],  # Status code
-            encode_data_from_proof_parser(self.proof)
+            *parse_proof(self.proof)
         ).transact()
         logger.info(f'SEND TRANSACTION WITH RESULT {result[1]} TO CONTRACT')
         logger.info(f'TRANSACTION DETAILS'
@@ -111,7 +111,7 @@ class BattleshipGame(Game):
             'move_id': value['id'],
             'game_id': value['gameId'],
             'result': self.calculate_result(guess=value['coordinate']),
-            'proof': zokrates_move_validator(self._zokrates_executable_location, self.ships_positions, parse(self.proof).get("proof")) # TODO Change attribute in get method to real hash
+            'proof': zokrates_move_validator(self._zokrates_executable_location, self.ships_positions, value['hash'], value['coordinate']) # TODO Change attribute in get method to real hash
         }
         self.call_move_result(**arguments)
 

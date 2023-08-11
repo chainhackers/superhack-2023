@@ -36,7 +36,7 @@ pip install -r requirements.txt
 
 The game logic is at battleship.py file, so you should run it using command:
 ```
-python battleship.py --rpc_url "http://localhost:8545/" --contract_address "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+python battleship.py --rpc_url "http://localhost:8545/" --contract_address "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512" --zokrates_executable_location "path to zokrates executable location"
 ```
 If you do not want to run events manually there is a script that will generate players moves to each cell from 0 to 99.
 Run it using command:
