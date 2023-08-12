@@ -6,7 +6,7 @@ import "../src/BattleShip.sol";
 
 contract BattleShipDeploy is Script {
     //Goerli
-    address constant REGISTRY = 0xeE4cdF3d437aD91628AEb49AF51d89172adb3442;
+    address constant REGISTRY = 0x15009Cbe24D1bFA83ABeCD177a5cd00B0D069AC0;
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
