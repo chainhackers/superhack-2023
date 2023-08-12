@@ -24,8 +24,8 @@ interface IGrid {
     /**
      * @notice Get game details by its coordinates on the grid.
      * @notice World coordinates are converted to game coordinates,
-     * @return game Address of the game contract.
      * @return gameId Unique identifier for the game.
+     * @return game Address of the game contract.
      */
     function getGameInfo(int256 x, int256 y) external returns (uint256 gameId, address game);
 
