@@ -120,7 +120,7 @@ class BattleshipGame(Game):
             *parse_proof(proof),
         ).build_transaction({
             "from": self.account,
-            "nonce": self.w3.eth.get_transaction_count(self.account),
+            "nonce": self.w3.eth.get_transaction_count(self.account.address),
         })
         signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
         tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
@@ -180,7 +180,7 @@ class BattleshipGame(Game):
             *parse_proof(proof)
         ).build_transaction({
             "from": self.account,
-            "nonce": self.w3.eth.get_transaction_count(self.account),
+            "nonce": self.w3.eth.get_transaction_count(self.account.address),
         })
         signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
         tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
