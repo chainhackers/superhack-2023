@@ -3,7 +3,7 @@
 
 ## Deployed contracts
 ### Goerli
-- GameRegistry: [0xee4cdf3d437ad91628aeb49af51d89172adb3442]([https://goerli.etherscan.io/address/0x15009cbe24d1bfa83abecd177a5cd00b0d069ac0])
+- GameRegistry: [0x15009cbe24d1bfa83abecd177a5cd00b0d069ac0]([https://goerli.etherscan.io/address/0x15009cbe24d1bfa83abecd177a5cd00b0d069ac0])
 
 ## Run locally
 #### Run Anvil
