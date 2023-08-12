@@ -7,10 +7,9 @@ contract BattleShip is IGame {
     uint256 public number;
     uint256 public digest;
 
-    function initGame(uint256 gameId, ZoKratesStructs.Proof calldata proof, uint256[1] inputs) external {
+    function initGame(uint256 gameId, ZoKratesStructs.Proof calldata proof, uint256[] calldata inputs) external {
         digest = inputs[0];
         emit GameInit(gameId, digest);
-
     }
 
     function isValidMove(uint8 coordinate, uint256 gameId) external view returns (bool){
@@ -23,6 +22,7 @@ contract BattleShip is IGame {
     }
 
     function moveResult(uint256 moveId, uint8 result, uint256 gameId, ZoKratesStructs.Proof calldata proof, uint256[] calldata inputs) external {
+        require(digest == inputs[0], "Invalid digest");
         emit MoveResult(moveId, result, gameId);
     }
 

@@ -33,9 +33,10 @@ interface IGame {
         @dev We intentionally keep the digest in the game contract instead of the registry
         @dev and make it a convention for game contracts instead. Some of the games may not use a secret state at all.
         @param gameId Unique identifier for the game.
-        @param digest Digest of the game secret state.
+        @param proof Proof for the game state.
+        @param inputs Inputs for the ZoKrates proof.
     */
-    function initGame(uint256 gameId, bytes32 digest) external;
+    function initGame(uint256 gameId, ZoKratesStructs.Proof calldata proof, uint256[] calldata inputs) external;
 
     /**
         @notice Check if a move is valid.
