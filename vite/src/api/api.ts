@@ -73,20 +73,37 @@ export const sendMove = async (
 export const getGameInfo = async (
     x: number,
     y: number,
-): Promise<GameInfoResult[]> => {
-    console.log('getGameInfo: start = ', { x, y });
-    const chainName = store.getState().wallet.chainFormattedName;
-    const request = ContractMethodRequest.create(chainName, 'GameInfo', 'getGameInfo')
-        .withX(x)
-        .withY(y);
-    const resultEvents = await executeContract(request);
-    const gameInfoResult = resultEvents == null ? [] : resultEvents.map(event => event.args as unknown as GameInfoResult);
-    if (store.getState().api.status != ApiStatus.ERROR) {
-        store.dispatch(endTransaction())
-        store.dispatch(changeApiStatus(ApiStatus.SUCCESS));
+): Promise<{gameId: number, game: string}> => {
+    try {
+        const chainName = store.getState().wallet.chainFormattedName;
+        const contract = await getGameContract(chainName);
+        const result = await contract.callStatic.getGameInfo(x, y);
+        return {gameId: result[0], game: result[1]};
+    } catch (error) {
+        console.error('getGameInfoApi: An error occurred = ', error);
+        throw error;
     }
-    console.log('getGameInfo: end = ', gameInfoResult);
-    return gameInfoResult;
+}
+
+export const getCellDetails = async (
+    x: number,
+    y: number,
+): Promise<{game: string, coordinate: number, tokenType: number, tokenId: number, image: string}> => {
+    try {
+        const chainName = store.getState().wallet.chainFormattedName;
+        const contract = await getGameContract(chainName);
+        const result = await contract.callStatic.cellDetails(x, y);
+        return {
+            game: result[0],
+            coordinate: result[1],
+            tokenType: result[2],
+            tokenId: result[3],
+            image: result[4]
+        };
+    } catch (error) {
+        console.error('getCellDetailsApi: An error occurred = ', error);
+        throw error;
+    }
 }
 
 async function getGameContract(

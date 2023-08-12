@@ -22,6 +22,17 @@ export default class Cell extends Phaser.GameObjects.Image {
         this._isOpen = false;
         this._isInteractable = true;
 
+        Api.getCellDetails(this.positionInGridX, this.positionInGridY).then((cellDetails) => {
+            const cellId = cellDetails.coordinate.toString().length == 1 ? `0${cellDetails.coordinate.toString()}` : cellDetails.coordinate.toString();
+            let imageUrl = cellDetails.image.replace("{id}", cellId);
+            let textureKey = 'textureKey_' + cellDetails.coordinate;
+            this.scene.load.image(textureKey, imageUrl);
+            this.scene.load.once('complete', () => {
+                this.setTexture(textureKey).setScale(this.size / this.width);
+            });
+            this.scene.load.start();
+        });
+
         this.on('pointerover', this.scaleUp);
         this.on('pointerout', this.scaleDown);
         this.on('pointerdown', this.handlePointerDown);
@@ -50,12 +61,12 @@ export default class Cell extends Phaser.GameObjects.Image {
 
     scaleUp(): void {
         if (!this.isInteractable || this.isOpen) return;
-        this.setTexture(SPRITES.CELL.HOVER.KEY).setScale(this.size / this.width);
+        this.setScale(this.size / this.width * 1.05);
     }
 
     scaleDown(): void {
         if (!this.isInteractable || this.isOpen) return;
-        this.setTexture(SPRITES.CELL.KEY).setScale(this.size / this.width);
+        this.setScale(this.size / this.width);
     }
 
     handlePointerDown(): void {
