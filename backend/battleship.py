@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import os
 import random
 
 from web3 import Web3
@@ -9,11 +10,14 @@ from utils import parse_proof
 from zokrates import zokrates_prove
 from game import Game
 from log_setup import setup_logger
+from dotenv import load_dotenv
 
+load_dotenv()
 logger = setup_logger()
 
 HORIZONTAL = 1
 VERTICAL = 0
+PRIVATE_KEY = os.environ['PRIVATE_KEY']
 
 
 class BattleshipGame(Game):
@@ -45,11 +49,22 @@ class BattleshipGame(Game):
         """
         if not hasattr(self, '_contract'):
             checksum_address = Web3.to_checksum_address(self._contract_address)
-            self.w3 = Web3(Web3.HTTPProvider(self._rpc_url))
             self._contract = self.w3.eth.contract(
                 address=checksum_address,
                 abi=ABI)
         return self._contract
+
+    @property
+    def account(self):
+        if not hasattr(self, '_account'):
+            self._account = self.w3.eth.account.from_key(f'{PRIVATE_KEY}')
+        return self._account
+
+    @property
+    def w3(self):
+        if not hasattr(self, '_w3'):
+            self._w3 = Web3(Web3.HTTPProvider(self._rpc_url))
+        return self._w3
 
     def board_size(self, size=10):
         self.board = [[0] * 10 for _ in range(size)]
@@ -100,10 +115,16 @@ class BattleshipGame(Game):
         :param proof:
         :return:
         """
-        self.contract.functions.gameInit(
+        tx = self._contract.functions.gameInit(
             self._game_id,
             *parse_proof(proof),
-        ).transact()
+        ).build_transaction({
+            "from": self.account,
+            "nonce": self.w3.eth.get_transaction_count(self.account),
+        })
+        signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
+        tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+        logger.info(f"TX SENT {tx_hash} FROM GAME_INIT")
 
     def _zokrates_move_validator(self, coordinate, digest):
         """
@@ -152,15 +173,20 @@ class BattleshipGame(Game):
         :param result: int
         :return:
         """
-        transaction_hash = self.contract.functions.moveResult(
+        tx = self._contract.functions.moveResult(
             self.w3.to_wei(move_id, "wei"),  # Convert to type uint256
             self.w3.to_wei(game_id, "wei"),  # Convert to type uint256
             result[0],  # Status code
             *parse_proof(proof)
-        ).transact()
+        ).build_transaction({
+            "from": self.account,
+            "nonce": self.w3.eth.get_transaction_count(self.account),
+        })
+        signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
+        tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
         logger.info(f'SEND TRANSACTION WITH RESULT {result[1]} TO CONTRACT')
         logger.info(f'TRANSACTION DETAILS'
-                    f'{self.w3.eth.wait_for_transaction_receipt(transaction_hash)}')
+                    f'{self.w3.eth.wait_for_transaction_receipt(tx_hash)}')
 
     def player_move(self, value):
         """
