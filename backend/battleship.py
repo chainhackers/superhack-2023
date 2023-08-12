@@ -115,7 +115,7 @@ class BattleshipGame(Game):
         :param proof:
         :return:
         """
-        tx = self.contract.functions.gameInit(
+        tx = self.contract.functions.initGame(
             int(self._game_id),
             *parse_proof(proof),
         ).build_transaction({
