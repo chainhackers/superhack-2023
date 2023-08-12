@@ -1,4 +1,4 @@
-type MoveResult = {
+type MoveInfo = {
     id: number;
     move: number;
     gameId: number;

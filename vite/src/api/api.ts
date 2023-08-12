@@ -6,6 +6,32 @@ import {changeApiStatus} from "../store/api/apiActions";
 import {endTransaction, startTransaction} from "../store/game/gameActions";
 import iGridAbi from "@iGridAbi"
 
+export const listenToContractEvent = async (
+    eventName: string,
+    eventHandler: (...args: any[]) => void,
+): Promise<void> => {
+    const chainName = store.getState().wallet.chainFormattedName;
+    const contract = await getGameContract(chainName);
+
+    contract.on(eventName, (...args) => {
+        eventHandler(...args);
+    });
+}
+
+export const listenToMoveAnsweredEvent = async (
+    moveId: number,
+    eventHandler: (...args: any[]) => void,
+): Promise<void> => {
+    const chainName = store.getState().wallet.chainFormattedName;
+    const contract = await getGameContract(chainName);
+
+    const filter = contract.filters["MoveAnswered"](null, moveId, null, null, null);
+
+    contract.on(filter, (...args) => {
+        eventHandler(...args);
+    });
+}
+
 async function executeContract(
     request: ContractMethodRequest,
 ): Promise<ethers.Event[] | null> {
@@ -54,14 +80,14 @@ async function executeContract(
 export const sendMove = async (
     x: number,
     y: number,
-): Promise<MoveResult[]> => {
+): Promise<MoveInfo[]> => {
     console.log('sendMove: start = ', { x, y });
     const chainName = store.getState().wallet.chainFormattedName;
     const request = ContractMethodRequest.create(chainName, 'MoveSent', 'sendMove')
         .withX(x)
         .withY(y);
     const resultEvents = await executeContract(request);
-    const moveResult = resultEvents == null ? [] : resultEvents.map(event => event.args as unknown as MoveResult);
+    const moveResult = resultEvents == null ? [] : resultEvents.map(event => event.args as unknown as MoveInfo);
     if (moveResult.length > 0) {
         store.dispatch(endTransaction())
         store.dispatch(changeApiStatus(ApiStatus.SUCCESS));
@@ -90,6 +116,7 @@ export const getCellDetails = async (
     y: number,
 ): Promise<{game: string, coordinate: number, tokenType: number, tokenId: number, image: string}> => {
     try {
+        console.log("getCellDetails start")
         const chainName = store.getState().wallet.chainFormattedName;
         const contract = await getGameContract(chainName);
         const result = await contract.callStatic.cellDetails(x, y);
@@ -109,12 +136,9 @@ export const getCellDetails = async (
 async function getGameContract(
     chain: string,
 ): Promise<ethers.Contract> {
-    console.log('getGameContract: chain = ', chain);
     const contractAddress: string = process.env.CONTRACT_ADDRESS;
     console.log('getGameContract: contractAddress = ', contractAddress);
     const signer = store.getState().wallet.signer;
-    console.log('getGameContract: signer = ', signer);
-    console.log('getGameContract: chainAbi = ', iGridAbi);
     return new ethers.Contract(contractAddress, iGridAbi, signer);
 }
 
