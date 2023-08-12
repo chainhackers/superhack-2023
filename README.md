@@ -132,3 +132,15 @@ forge script script/BattleShipDeploy.s.sol:BattleShipDeploy --rpc-url $GOERLI_RP
 # Contract successfully verified
 # All (1) contracts were verified!
 ```
+
+## Upgrade!
+### Upgrade `GameRegistry` in Goerli
+```shell
+source .env
+forge script script/GameRegistryUpgrade.s.sol:GameRegistryUpgrade --rpc-url $GOERLI_RPC_URL --broadcast --verify -v
+```
+```shell
+#Details: `Pass - Verified`
+#Contract successfully verified
+#All (1) contracts were verified!
+```
