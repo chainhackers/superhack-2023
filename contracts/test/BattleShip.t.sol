@@ -37,6 +37,6 @@ contract BattleShipTest is Test {
         inputs[0] = 1;
         inputs[1] = 1;
         ZoKratesStructs.Proof memory proof;
-        battleShip.moveResult(moveId, result, gameId, inputs, proof);
+        battleShip.moveResult(moveId, result, gameId, proof, inputs);
     }
 }

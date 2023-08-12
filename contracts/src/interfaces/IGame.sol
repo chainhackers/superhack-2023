@@ -66,10 +66,10 @@ interface IGame {
         @param moveId Unique identifier for the move.
         @param result Result of the move.
         @param gameId Unique identifier for the game.
-        @param inputs Inputs for the ZoKrates proof.
         @param proof Proof for the move result.
+        @param inputs Inputs for the ZoKrates proof.
     */
-    function moveResult(uint256 moveId, uint8 result, uint256 gameId, uint256[] calldata inputs, ZoKratesStructs.Proof calldata proof) external;
+    function moveResult(uint256 moveId, uint8 result, uint256 gameId, ZoKratesStructs.Proof calldata proof, uint256[] calldata inputs) external;
 
     /**
         @notice Get the name of the game.

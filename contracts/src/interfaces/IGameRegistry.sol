@@ -2,13 +2,24 @@
 
 pragma solidity ^0.8.0;
 
+import "../../lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155Upgradeable.sol";
+
 /**
  * @title IGameRegistry
  * @notice Registering and managing games on the InfiniQuilt Grid.
  * @notice It allows for the registration of game contracts, setting up game parameters, responding to player moves, and more.
  * @notice Game backends can use this interface to integrate their games with the main grid and provide consistent gameplay experiences.
  */
-interface IGameRegistry {
+interface IGameRegistry is IERC1155Upgradeable {
+    // Game registration struct to store game details like grid position and address.
+    struct RegisteredGameEntry {
+        // address of the game contract
+        address game;
+        // x coordinate of the upper left cell of the game in the grid
+        int256 x;
+        // y coordinate of the upper left cell of the game in the grid
+        int256 y;
+    }
 
     enum MoveResult {
         Loss,
@@ -32,8 +43,10 @@ interface IGameRegistry {
      * @dev Register a new game contract to the grid.
      *
      * @param gameContract Address of the game contract.
+     * @param x X coordinate of the upper left cell of the game in the grid.
+     * @param y Y coordinate of the upper left cell of the game in the grid.
      */
-    function registerGame(address gameContract) external;
+    function registerGame(address gameContract, int256 x, int256 y) external;
 
     /**
      * @dev Register a timeout request due to a game not processing moves in time.
