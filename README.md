@@ -1,6 +1,9 @@
 # InfiniQuilt: The Infinite Matrix of Possibilities
 ### Superhack 2023 entry by ChainHackers
 
+## Deployed contracts
+### Goerli
+- GameRegistry: [0xee4cdf3d437ad91628aeb49af51d89172adb3442](https://goerli.etherscan.io/address/0xee4cdf3d437ad91628aeb49af51d89172adb3442)
 
 ## Run locally
 #### Run Anvil
