@@ -1,5 +1,7 @@
-./**/*.sol
-./**/*.key
-./**/out*
-./**/abi.json
-./**/witness
+*.sol
+*.key
+out*
+abi.json
+witness
+/**/abi.json
+/**/proof.json

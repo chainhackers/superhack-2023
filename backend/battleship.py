@@ -1,10 +1,9 @@
 import argparse
 import random
-import json
 
 from web3 import Web3
 
-from constants import ABI, PATH_TO_INIT_HANDLER, PATH_TO_MOVE_HANDLER
+from constants import ABI
 from utils import parse_proof
 from zokrates import zokrates_prove
 from game import Game
@@ -19,12 +18,20 @@ VERTICAL = 0
 class BattleshipGame(Game):
     board = 0
 
-    def __init__(self, rpc_url, contract_address, zokrates_executable_location, game_id):
+    def __init__(
+            self,
+            rpc_url,
+            game_id,
+            contract_address,
+            zokrates_executable_location,
+            zokrates_init_handler_dir,
+            zokrates_move_handler_dir,
+    ):
         self._rpc_url = rpc_url
         self._contract_address = contract_address
         self._zokrates_executable_location = zokrates_executable_location
-        self._zokrates_move_handler_dir = PATH_TO_MOVE_HANDLER
-        self._zokrates_init_handler_dir = PATH_TO_INIT_HANDLER
+        self._zokrates_init_handler_dir = zokrates_init_handler_dir
+        self._zokrates_move_handler_dir = zokrates_move_handler_dir
         self.board_size()
         self._game_id = game_id
         self.calculate_filled_cells()
@@ -37,7 +44,7 @@ class BattleshipGame(Game):
         Fill board with "ships".
         """
         self.ships_positions = []
-    
+
         for ship_size in [5, 4, 3, 3, 2]:
             while True:
                 direction = random.choice([HORIZONTAL, VERTICAL])
@@ -49,14 +56,15 @@ class BattleshipGame(Game):
                     col = random.randint(0, 9)
 
                 # Check
-                if all(self.board[row + (direction == VERTICAL) * i][col + (direction == HORIZONTAL) * i] == 0 for i in range(ship_size)):
+                if all(self.board[row + (direction == VERTICAL) * i][col + (direction == HORIZONTAL) * i] == 0 for i in
+                       range(ship_size)):
                     # Place ship and change cells
                     for i in range(ship_size):
                         self.board[row + (direction == VERTICAL) * i][col + (direction == HORIZONTAL) * i] = 1
                     if direction == HORIZONTAL:
                         self.ships_positions.extend([row, col, HORIZONTAL])
                     else:
-                        self.ships_positions.extend([row, col, VERTICAL]) 
+                        self.ships_positions.extend([row, col, VERTICAL])
                     break
         self.call_game_init(self._zokrates_init_validator())
 
@@ -209,8 +217,18 @@ if __name__ == "__main__":
     parser.add_argument("--contract_address", required=True, help="Address of the smart contract")
     parser.add_argument("--game_id", required=True, help="Game identificator of registered game.")
     parser.add_argument("--zokrates_executable_location", required=True, help="Path to zokrates binary")
-    # parser.add_argument("--zokrates_work_dir", required=True, help="Path of the directory contains proover code and configuration files")
+    parser.add_argument("--zokrates_init_handler_dir", required=True,
+                        help="Path of the directory of game init proover code and configuration files")
+    parser.add_argument("--zokrates_move_handler_dir", required=True,
+                        help="Path of the directory of game move proover code and configuration files")
     args = parser.parse_args()
 
-    game = BattleshipGame(args.rpc_url, args.contract_address, args.zokrates_executable_location, args.game_id) #, args.zokrates_work_dir)
+    game = BattleshipGame(
+        rpc_url=args.rpc_url,
+        game_id=args.game_id,
+        contract_address=args.contract_address,
+        zokrates_executable_location=args.zokrates_executable_location,
+        zokrates_init_handler_dir=args.zokrates_init_handler_dir,
+        zokrates_move_handler_dir=args.zokrates_move_handler_dir
+    )
     game.subscribe_to_contract_events()
