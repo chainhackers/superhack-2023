@@ -12,15 +12,6 @@ class Game(ABC):
         ...
 
     @abstractmethod
-    def game_move_price(self, quantity):
-        """
-        The fee each user pays to make move in the game
-        :param quantity: int
-        :return: None
-        """
-        ...
-
-    @abstractmethod
     def player_move(self, value):
         """
         Define an abstract method that will process and respond to player move transactions.
@@ -29,7 +20,6 @@ class Game(ABC):
         :param value:
         :return: str [Loss, Win]
         """
-        # TODO
         ...
 
     @abstractmethod
@@ -39,7 +29,6 @@ class Game(ABC):
         Ensure the subscription filters events specifically for the 10x10 grid square serviced by the backend.
         :return: str
         """
-        # TODO
         ...
 
     @property
@@ -57,7 +46,6 @@ class Game(ABC):
         :param contract:
         :return: None
         """
-        # TODO
         ...
 
     @property
