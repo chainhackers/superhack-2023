@@ -35,7 +35,6 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update(): void {
-
         if (store.getState().api.status == ApiStatus.STARTED || store.getState().api.status == ApiStatus.PENDING
             || store.getState().api.status == ApiStatus.WAITING_RESPONSE && this.grid.isInteractable) {
             this.grid.setCellsInteractable(false);

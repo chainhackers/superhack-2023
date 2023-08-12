@@ -22,6 +22,8 @@ export default class Cell extends Phaser.GameObjects.Image {
         this._isOpen = false;
         this._isInteractable = true;
 
+        this.updateView();
+
         this.on('pointerover', this.scaleUp);
         this.on('pointerout', this.scaleDown);
         this.on('pointerdown', this.handlePointerDown);
@@ -50,16 +52,34 @@ export default class Cell extends Phaser.GameObjects.Image {
 
     scaleUp(): void {
         if (!this.isInteractable || this.isOpen) return;
-        this.setTexture(SPRITES.CELL.HOVER.KEY).setScale(this.size / this.width);
+        this.setScale(this.size / this.width * 1.05);
     }
 
     scaleDown(): void {
         if (!this.isInteractable || this.isOpen) return;
-        this.setTexture(SPRITES.CELL.KEY).setScale(this.size / this.width);
+        this.setScale(this.size / this.width);
     }
 
-    handlePointerDown(): void {
+    async handlePointerDown(): Promise<void> {
         if (!this.isInteractable || this.isOpen) return;
-        Api.sendMove(this.positionInGridX, this.positionInGridY);
+        const move: MoveInfo[] = await Api.sendMove(this.positionInGridX, this.positionInGridY);
+        console.log("MOVE_ID: " + move[0].id)
+        Api.listenToMoveAnsweredEvent(move[0].id, (gameId, moveId, result, rewardValue, isGameOver) => {
+            console.log("MOVE ANSWERED RAISED" + `gameId=${gameId}` + `isGameOver=${isGameOver}`)
+            this.updateView();
+        });
+    }
+
+    updateView(): void {
+        Api.getCellDetails(this.positionInGridX, this.positionInGridY).then((cellDetails) => {
+            const cellId = cellDetails.coordinate.toString().length == 1 ? `0${cellDetails.coordinate.toString()}` : cellDetails.coordinate.toString();
+            let imageUrl = cellDetails.image.replace("{id}", cellId);
+            let textureKey = 'textureKey_' + cellDetails.coordinate;
+            this.scene.load.image(textureKey, imageUrl);
+            this.scene.load.once('complete', () => {
+                this.setTexture(textureKey).setScale(this.size / this.width);
+            });
+            this.scene.load.start();
+        });
     }
 }
