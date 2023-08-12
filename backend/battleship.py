@@ -115,11 +115,11 @@ class BattleshipGame(Game):
         :param proof:
         :return:
         """
-        tx = self._contract.functions.gameInit(
-            self._game_id,
+        tx = self.contract.functions.gameInit(
+            int(self._game_id),
             *parse_proof(proof),
         ).build_transaction({
-            "from": self.account,
+            "from": self.account.address,
             "nonce": self.w3.eth.get_transaction_count(self.account.address),
         })
         signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
@@ -173,13 +173,13 @@ class BattleshipGame(Game):
         :param result: int
         :return:
         """
-        tx = self._contract.functions.moveResult(
+        tx = self.contract.functions.moveResult(
             self.w3.to_wei(move_id, "wei"),  # Convert to type uint256
             self.w3.to_wei(game_id, "wei"),  # Convert to type uint256
             result[0],  # Status code
             *parse_proof(proof)
         ).build_transaction({
-            "from": self.account,
+            "from": self.account.address,
             "nonce": self.w3.eth.get_transaction_count(self.account.address),
         })
         signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)

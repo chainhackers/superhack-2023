@@ -3,9 +3,9 @@ import json
 
 def encode_struct(struct):
     if isinstance(struct, dict):
-        return [(encode_struct(it) for it in struct.values())]
+        return [encode_struct(it) for it in struct.values()]
     elif isinstance(struct, list):
-        return [(encode_struct(it) for it in struct)]
+        return [encode_struct(it) for it in struct]
     else:
         return int(struct, 0)
 
