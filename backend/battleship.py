@@ -36,6 +36,20 @@ class BattleshipGame(Game):
         self._game_id = game_id
         self.calculate_filled_cells()
 
+    @property
+    def contract(self):
+        """
+        Returns contract instance.
+        :return: contract instance
+        """
+        if not hasattr(self, '_contract'):
+            checksum_address = Web3.to_checksum_address(self._contract_address)
+            self.w3 = Web3(Web3.HTTPProvider(self._rpc_url))
+            self._contract = self.w3.eth.contract(
+                address=checksum_address,
+                abi=ABI)
+        return self._contract
+
     def board_size(self, size=10):
         self.board = [[0] * 10 for _ in range(size)]
 
@@ -180,11 +194,7 @@ class BattleshipGame(Game):
         Contract event listener.
         Listen to event 'Player's Move' -> send it to game logic via handler.
         """
-        checksum_address = Web3.to_checksum_address(self._contract_address)
-        self.w3 = Web3(Web3.HTTPProvider(self._rpc_url))
-        self.contract = self.w3.eth.contract(
-            address=checksum_address,
-            abi=ABI)
+
         event_move = "Move"
         last_block_number = self.w3.eth.block_number
         event_move_filter = self.contract.events[event_move].create_filter(
