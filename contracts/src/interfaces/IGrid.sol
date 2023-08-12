@@ -2,11 +2,32 @@
 pragma solidity ^0.8.0;
 
 interface IGrid {
+    //  Move struct to store moves until they are answered by the game contract.
+    struct Move {
+        uint8 move;
+        uint256 gameId;
+        address player;
+    }
+
+    // emitted when a move is sent to a game contract by the grid contract
     event MoveSent(uint256 id, uint8 move, uint256 gameId, address player);
 
-    function sendMove(uint256 x, uint256 y) external;
+    /**
+     * @notice The grid contract will call the game contract's move function
+     * @notice when a player makes a move on the grid.
+     *
+     * @param x X coordinate of the game on the grid.
+     * @param y Y coordinate of the game on the grid.
+     */
+    function sendMove(int256 x, int256 y) external;
 
-    function getGameInfo(uint256 x, uint256 y) external returns (uint256, address);
+    /**
+     * @notice Get game details by its coordinates on the grid.
+     * @notice World coordinates are converted to game coordinates,
+     * @return gameId Unique identifier for the game.
+     * @return game Address of the game contract.
+     */
+    function getGameInfo(int256 x, int256 y) external returns (uint256 gameId, address game);
 
     /**
      * @notice Details of the cell at the given coordinates.
