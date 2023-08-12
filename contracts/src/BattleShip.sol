@@ -7,7 +7,7 @@ contract BattleShip is IGame {
     uint256 public number;
     uint256 public digest;
 
-    function initGame(uint256 gameId, ZoKratesStructs.Proof calldata proof, uint256[] memory inputs) external {
+    function initGame(uint256 gameId, ZoKratesStructs.Proof calldata proof, uint256[] calldata inputs) external {
         digest = inputs[0];
         emit GameInit(gameId, digest);
     }

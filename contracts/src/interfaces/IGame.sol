@@ -15,7 +15,7 @@ import {ZoKratesStructs} from "../lib/ZoKratesStructs.sol";
 */
 interface IGame {
     // Event emitted when a new game is initialized
-    event GameInit(uint256 indexed gameId, bytes32 digest);
+    event GameInit(uint256 indexed gameId, uint256 digest);
     // Event emitted when a player makes a move
     event Move(uint256 id, uint8 coordinate, uint256 indexed gameId, address indexed player);
     // Event emitted when a game answers a player move
@@ -36,7 +36,7 @@ interface IGame {
         @param proof Proof for the game state.
         @param inputs Inputs for the ZoKrates proof.
     */
-    function initGame(uint256 gameId, ZoKratesStructs.Proof calldata proof, uint256[] memory inputs) external;
+    function initGame(uint256 gameId, ZoKratesStructs.Proof calldata proof, uint256[] calldata inputs) external;
 
     /**
         @notice Check if a move is valid.
