@@ -53,10 +53,7 @@ contract GameRegistry is IGameRegistry, IGrid, UUPSUpgradeable, OwnableUpgradeab
         require(!_gameExists(gameId), "GameRegistry: a game already exists at this location");
         gameEntries[gameId] = RegisteredGameEntry(game, x, y);
         emit GameRegistered(gameId, game, msg.sender);
-        if (balanceOf(address(this), gameId) == 0) {
-            _mint(address(this), gameId, 1, "");
-        }
-        safeTransferFrom(address(this), msg.sender, gameId, 1, "");
+        _mint(msg.sender, gameId, 1, "");
     }
 
     /**
