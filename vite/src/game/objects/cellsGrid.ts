@@ -8,13 +8,17 @@ export default class CellsGrid {
     public readonly CellSpacing = Constants.CELL_SPACING;
 
     private _grid: Cell[][];
+    private _gridX: number;
+    private _gridY: number;
     private _offsetX: number;
     private _offsetY: number;
     private _overlay: Phaser.GameObjects.Rectangle;
     private _spaceBarPressed: boolean = false;
     private _overlayText: Phaser.GameObjects.Text;
 
-    constructor(scene: Scene, gridSize: number, startX: number, startY: number) {
+    constructor(scene: Scene, gridSize: number, startX: number, startY: number, gridX: number, gridY: number) {
+        this._gridX = gridX;
+        this._gridY = gridY;
         this._offsetX = startX;
         this._offsetY = startY;
         this.create(scene, gridSize);
@@ -44,7 +48,7 @@ export default class CellsGrid {
                     .map((_, colIndex: number) => {
                         const x = colIndex * (this.CellSize + this.CellSpacing) + this.CellSize / 2 + this._offsetX;
                         const y = rowIndex * (this.CellSize + this.CellSpacing) + this.CellSize / 2 + this._offsetY;
-                        const cell = new Cell(scene, rowIndex * gridSize + colIndex, x, y, this.CellSize, colIndex, rowIndex);
+                        const cell = new Cell(scene, rowIndex * gridSize + colIndex, x, y, this.CellSize, colIndex, rowIndex, this._gridX, this._gridY);
                         scene.add.existing(cell);
                         return cell;
                     });

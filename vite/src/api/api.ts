@@ -116,7 +116,7 @@ export const getCellDetails = async (
     y: number,
 ): Promise<{game: string, coordinate: number, tokenType: number, tokenId: number, image: string}> => {
     try {
-        console.log("getCellDetails start")
+        console.log(`getCellDetails start. x=${x}, y=${y}`);
         const chainName = store.getState().wallet.chainFormattedName;
         const contract = await getGameContract(chainName);
         const result = await contract.callStatic.cellDetails(x, y);

@@ -3,20 +3,30 @@ import { SPRITES } from "../constants/assetConstants";
 import * as Api from "../../api/api"
 import {store} from "@store";
 import {ApiStatus} from "@stateTypes";
+import {GRID_SIZE} from "../constants/gameConstants";
 
 export default class Cell extends Phaser.GameObjects.Image {
+    private readonly gridX: number;
+    private readonly gridY: number;
     private readonly size: number;
     private _gridIndex: number;
     private _isOpen: boolean;
-    private readonly positionInGridX: number;
-    private readonly positionInGridY: number;
+    private readonly gridXLocalPosition: number;
+    private readonly gridYLocalPosition: number;
     private _spaceBarPressed: boolean = false;
+    private globalOnGridXPosition: number;
+    private globalOnGridYPosition: number;
 
-    constructor(scene: Phaser.Scene, gridIndex: number, x: number, y: number, size: number, positionInGridX: number, positionInGridY: number) {
+    constructor(scene: Phaser.Scene, gridIndex: number, x: number, y: number, size: number, positionInGridX: number, positionInGridY: number, gridX: number, gridY: number) {
         super(scene, x, y, SPRITES.CELL.KEY);
+        this.gridX = gridX;
+        this.gridY = gridY;
 
-        this.positionInGridX = positionInGridX;
-        this.positionInGridY = positionInGridY;
+        this.gridXLocalPosition = positionInGridX;
+        this.gridYLocalPosition = positionInGridY;
+
+        this.globalOnGridXPosition = GRID_SIZE * this.gridX + this.gridXLocalPosition;
+        this.globalOnGridYPosition = GRID_SIZE * this.gridY + this.gridYLocalPosition;
 
         this._gridIndex = gridIndex;
         this.size = size;
@@ -59,7 +69,7 @@ export default class Cell extends Phaser.GameObjects.Image {
 
     async handlePointerDown(): Promise<void> {
         if (!this.checkCellInteractable() || this.isOpen) return;
-        const move: MoveInfo[] = await Api.sendMove(this.positionInGridX, this.positionInGridY);
+        const move: MoveInfo[] = await Api.sendMove(this.globalOnGridXPosition, this.globalOnGridYPosition);
         console.log("MOVE_ID: " + move[0].id)
         Api.listenToMoveAnsweredEvent(move[0].id, (gameId, moveId, result, rewardValue, isGameOver) => {
             console.log("MOVE ANSWERED RAISED" + `gameId=${gameId}` + `isGameOver=${isGameOver}`)
@@ -68,9 +78,8 @@ export default class Cell extends Phaser.GameObjects.Image {
     }
 
     updateView(): void {
-        Api.getCellDetails(this.positionInGridX, this.positionInGridY).then((cellDetails) => {
-            const cellId = cellDetails.coordinate.toString().length == 1 ? `0${cellDetails.coordinate.toString()}` : cellDetails.coordinate.toString();
-            let imageUrl = cellDetails.image.replace("{id}", cellId);
+        Api.getCellDetails(this.globalOnGridXPosition, this.globalOnGridYPosition).then((cellDetails) => {
+            let imageUrl = cellDetails.image.replace("{id}", `${this.gridYLocalPosition}${this.gridXLocalPosition}`);
             let textureKey = 'textureKey_' + cellDetails.coordinate;
             this.scene.load.image(textureKey, imageUrl);
             this.scene.load.once('complete', () => {

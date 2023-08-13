@@ -25,7 +25,7 @@ export default class GameScene extends Phaser.Scene {
             return Array(10).fill(null).map((_, col) => {
                 const offsetX = col * 10 * Constants.CELL_SIZE + col * 10 * Constants.CELL_SPACING;
                 const offsetY = row * 10 * Constants.CELL_SIZE + row * 10 * Constants.CELL_SPACING;
-                return new CellsGrid(this, this.gridSize, offsetX, offsetY);
+                return new CellsGrid(this, this.gridSize, offsetX, offsetY, col, row);
             });
         });
 
