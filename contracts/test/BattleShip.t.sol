@@ -31,13 +31,13 @@ contract BattleShipTest is Test {
 
     function testMove(uint8 x, uint256 gameId) public {
         battleShip.move(x, gameId);
-        assertEq(battleShip.number(), 1);
+        assertEq(battleShip.nextMoveId(), 1);
     }
 
     function testMoveTwice(uint8 x, uint256 gameId) public {
         battleShip.move(x, gameId);
         battleShip.move(x, gameId);
-        assertEq(battleShip.number(), 2);
+        assertEq(battleShip.nextMoveId(), 2);
     }
 
     event MoveResult(uint256 id, uint8 result, uint256 indexed gameId);

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 interface IGrid {
+    // TODO moved o IGame, drop here
     //  Move struct to store moves until they are answered by the game contract.
     struct Move {
         uint8 move;

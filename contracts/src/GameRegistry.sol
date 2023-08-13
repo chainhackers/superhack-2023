@@ -18,6 +18,7 @@ contract GameRegistry is IGameRegistry, IGrid, UUPSUpgradeable, OwnableUpgradeab
     // @dev incrementing ID for moves
     uint256 public nextMoveId;
 
+    // @dev deprecated: Moved to games
     // @dev mapping of move IDs to moves
     mapping(uint256 => Move) public moves;
 
@@ -52,7 +53,7 @@ contract GameRegistry is IGameRegistry, IGrid, UUPSUpgradeable, OwnableUpgradeab
         uint256 gameId = Utils.pair(x, y);
         require(!_gameExists(gameId), "GameRegistry: a game already exists at this location");
         gameEntries[gameId] = RegisteredGameEntry(game, x, y);
-        emit GameRegistered(gameId, game, msg.sender);
+        emit GameRegistered(gameId, x, y, game, msg.sender);
         _mint(msg.sender, gameId, 1, "");
     }
 
@@ -89,7 +90,7 @@ contract GameRegistry is IGameRegistry, IGrid, UUPSUpgradeable, OwnableUpgradeab
     // @param result Result of the move produced by the game contract, may be produced asynchronously by its backend.
     // @param rewardValue Value of the reward for the move paid to the player by the game contract.
     // @param isGameOver True if the game is over, false otherwise.
-    function answerPlayerMove(uint256 gameId, uint256 moveId, MoveResult result, uint256 rewardValue, bool isGameOver) external {
+    function answerPlayerMove(uint256 gameId, uint256 moveId, MoveRes result, uint256 rewardValue, bool isGameOver) external {
         emit MoveAnswered(gameId, moveId, result, rewardValue, isGameOver);
     }
 

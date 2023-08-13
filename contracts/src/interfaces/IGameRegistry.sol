@@ -21,14 +21,14 @@ interface IGameRegistry is IERC1155Upgradeable {
         int256 y;
     }
 
-    enum MoveResult {
+    enum MoveRes {
         Loss,
         Win,
         NoResult
     }
 
     // Event emitted when a new game is registered
-    event GameRegistered(uint256 indexed gameId, address indexed gameContract, address indexed registrar);
+    event GameRegistered(uint256 indexed gameId, int256 x, int256 y, address indexed gameContract, address indexed registrar);
 
     // Event emitted when a timeout request is made
     event TimeoutRequested(uint256 indexed gameId, address indexed requester);
@@ -37,7 +37,7 @@ interface IGameRegistry is IERC1155Upgradeable {
     event GameSetup(uint256 indexed gameId, uint256 movePrice, uint256 rewardBalance, uint256 timeoutSpan, bytes32 gameStateHash);
 
     // Event emitted when a game answers a player move
-    event MoveAnswered(uint256 indexed gameId, uint256 indexed moveId, MoveResult result, uint256 rewardValue, bool isGameOver);
+    event MoveAnswered(uint256 indexed gameId, uint256 indexed moveId, MoveRes result, uint256 rewardValue, bool isGameOver);
 
     /**
      * @notice Register a new game contract to the grid.
@@ -89,7 +89,7 @@ interface IGameRegistry is IERC1155Upgradeable {
      * @param rewardValue Reward to be given to the player.
      * @param isGameOver Boolean indicating if the game is over.
      */
-    function answerPlayerMove(uint256 gameId, uint256 moveId, MoveResult result, uint256 rewardValue, bool isGameOver) external;
+    function answerPlayerMove(uint256 gameId, uint256 moveId, MoveRes result, uint256 rewardValue, bool isGameOver) external;
 
     /**
      * @notice Whether a game is registered at the given coordinates.

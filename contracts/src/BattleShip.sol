@@ -8,12 +8,15 @@ import "./verifiers/battleship_init.sol";
 import "./verifiers/battleship_move.sol";
 
 contract BattleShip is IGame, Ownable {
-    uint256 public number;
+    uint256 public nextMoveId;
     mapping(uint256 => uint256) public digest;
     IGameRegistry public registry;
     BattleShipInitVerifier public initVerifier;
     BattleShipMoveVerifier public moveVerifier;
     mapping(uint256 => mapping(uint8 => uint8)) public discovered;
+
+    // @dev mapping of move IDs to moves
+    mapping(uint256 => MoveSent) public moves;
 
     constructor(
         IGameRegistry _registry,
@@ -55,10 +58,13 @@ contract BattleShip is IGame, Ownable {
     }
 
     function move(uint8 coordinate, uint256 gameId) external {
-        emit Move(number, coordinate, gameId, msg.sender, digest[gameId]);
-        discovered[gameId][coordinate] = 1;
-        number++;
+        emit Move(nextMoveId, coordinate, gameId, tx.origin, digest[gameId]); //TODO tx.origin :P
+        moves[nextMoveId].gameId = gameId;
+        moves[nextMoveId].coordinate = coordinate;
+        moves[nextMoveId].player = tx.origin; //TODO tx.origin :P update interface pass player addr explicitly
+        nextMoveId++;
     }
+
 
     function moveResult(uint256 moveId, uint8 result, uint256 gameId, ZoKratesStructs.Proof calldata proof, uint256[] calldata inputs) external {
         uint256[3] memory _inputs;
@@ -76,7 +82,13 @@ contract BattleShip is IGame, Ownable {
         _proof.c.Y = proof.c.Y;
         require(moveVerifier.verifyTx(_proof, _inputs), "Invalid proof");
         require(digest[gameId] == inputs[0], "Invalid digest");
+
         emit MoveResult(moveId, result, gameId);
+        uint8 coordinate = moves[moveId].coordinate;
+        discovered[gameId][coordinate] = result;
+
+        delete moves[moveId];
+        registry.answerPlayerMove(gameId, moveId, IGameRegistry.MoveRes(result), 0, false);
     }
 
     function name(uint256 gameId) external view returns (string memory){
