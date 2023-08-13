@@ -23,7 +23,8 @@ interface IGrid {
 
     /**
      * @notice Get game details by its coordinates on the grid.
-     * @notice World coordinates are converted to game coordinates,
+     * @notice World coordinates are converted to game coordinates.
+     * @dev x and y are transformed to game ID with Cantor pairing function for two signed ints
      * @return gameId Unique identifier for the game.
      * @return game Address of the game contract.
      */

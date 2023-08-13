@@ -69,8 +69,17 @@ contract GameRegistry is IGameRegistry, IGrid, UUPSUpgradeable, OwnableUpgradeab
         nextMoveId++;
     }
 
-    function getGameInfo(int256 x, int256 y) external returns (uint256, address) {
-        return (1, 0x1B8E12F839BD4e73A47adDF76cF7F0097d74c14C);
+
+    /**
+     * @notice Get game details by its coordinates on the grid.
+     * @notice World coordinates are converted to game coordinates.
+     * @dev x and y are transformed to game ID with Cantor pairing function for two signed ints
+     * @return gameId Unique identifier for the game.
+     * @return game Address of the game contract.
+     */
+    function getGameInfo(int256 x, int256 y) external returns (uint256 gameId, address game){
+        gameId = Utils.pair(x, y);
+        game = gameEntries[gameId].game;
     }
 
     function cellDetails(int256 x, int256 y) external view returns (address game, uint8 coordinate, uint256 tokenType, uint256 tokenId, string memory url){
