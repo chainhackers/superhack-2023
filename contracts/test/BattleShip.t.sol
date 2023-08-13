@@ -3,14 +3,20 @@ pragma solidity 0.8.20;
 
 import {Test, console2} from "forge-std/Test.sol";
 import {IGame} from "../src/interfaces/IGame.sol";
+import {IGameRegistry} from "../src/interfaces/IGameRegistry.sol";
+import {GameRegistry} from "../src/GameRegistry.sol";
 import {BattleShip} from "../src/BattleShip.sol";
 import {ZoKratesStructs} from "../src/lib/ZoKratesStructs.sol";
 
 contract BattleShipTest is Test {
+    address constant BACKEND = 0xb95A131ABF8c82aC9A3e9715Fb2eb1f7E2AAfcE8;
+
     BattleShip public battleShip;
+    IGameRegistry public gameRegistry;
 
     function setUp() public {
-        battleShip = new BattleShip();
+        gameRegistry = new GameRegistry();
+        battleShip = new BattleShip(gameRegistry, BACKEND);
     }
 
     function testIsValidMove(uint8 x, uint256 gameId) public {

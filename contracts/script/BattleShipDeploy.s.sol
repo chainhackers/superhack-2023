@@ -7,6 +7,7 @@ import "../src/BattleShip.sol";
 contract BattleShipDeploy is Script {
     //Goerli
     address constant REGISTRY = 0x15009Cbe24D1bFA83ABeCD177a5cd00B0D069AC0;
+    address constant BACKEND = 0xb95A131ABF8c82aC9A3e9715Fb2eb1f7E2AAfcE8;
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -14,7 +15,7 @@ contract BattleShipDeploy is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        BattleShip battleShip = new BattleShip();
+        BattleShip battleShip = new BattleShip(IGameRegistry(REGISTRY), BACKEND);
 
         vm.stopBroadcast();
     }

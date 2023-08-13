@@ -2,10 +2,21 @@
 pragma solidity 0.8.20;
 
 import "./interfaces/IGame.sol";
+import "./interfaces/IGameRegistry.sol";
+import "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
-contract BattleShip is IGame {
+contract BattleShip is IGame, Ownable {
     uint256 public number;
     uint256 public digest;
+    IGameRegistry public registry;
+
+    constructor(
+        IGameRegistry _registry,
+        address backend
+    ){
+        registry = _registry;
+        transferOwnership(backend);
+    }
 
     function initGame(uint256 gameId, ZoKratesStructs.Proof calldata proof, uint256[] calldata inputs) external {
         digest = inputs[0];
