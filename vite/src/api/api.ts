@@ -6,6 +6,32 @@ import {changeApiStatus} from "../store/api/apiActions";
 import {endTransaction, startTransaction} from "../store/game/gameActions";
 import iGridAbi from "@iGridAbi"
 
+export const listenToContractEvent = async (
+    eventName: string,
+    eventHandler: (...args: any[]) => void,
+): Promise<void> => {
+    const chainName = store.getState().wallet.chainFormattedName;
+    const contract = await getGameContract(chainName);
+
+    contract.on(eventName, (...args) => {
+        eventHandler(...args);
+    });
+}
+
+export const listenToMoveAnsweredEvent = async (
+    moveId: number,
+    eventHandler: (...args: any[]) => void,
+): Promise<void> => {
+    const chainName = store.getState().wallet.chainFormattedName;
+    const contract = await getGameContract(chainName);
+
+    const filter = contract.filters["MoveAnswered"](null, moveId, null, null, null);
+
+    contract.on(filter, (...args) => {
+        eventHandler(...args);
+    });
+}
+
 async function executeContract(
     request: ContractMethodRequest,
 ): Promise<ethers.Event[] | null> {
@@ -54,14 +80,14 @@ async function executeContract(
 export const sendMove = async (
     x: number,
     y: number,
-): Promise<MoveResult[]> => {
+): Promise<MoveInfo[]> => {
     console.log('sendMove: start = ', { x, y });
     const chainName = store.getState().wallet.chainFormattedName;
     const request = ContractMethodRequest.create(chainName, 'MoveSent', 'sendMove')
         .withX(x)
         .withY(y);
     const resultEvents = await executeContract(request);
-    const moveResult = resultEvents == null ? [] : resultEvents.map(event => event.args as unknown as MoveResult);
+    const moveResult = resultEvents == null ? [] : resultEvents.map(event => event.args as unknown as MoveInfo);
     if (moveResult.length > 0) {
         store.dispatch(endTransaction())
         store.dispatch(changeApiStatus(ApiStatus.SUCCESS));
@@ -73,31 +99,46 @@ export const sendMove = async (
 export const getGameInfo = async (
     x: number,
     y: number,
-): Promise<GameInfoResult[]> => {
-    console.log('getGameInfo: start = ', { x, y });
-    const chainName = store.getState().wallet.chainFormattedName;
-    const request = ContractMethodRequest.create(chainName, 'GameInfo', 'getGameInfo')
-        .withX(x)
-        .withY(y);
-    const resultEvents = await executeContract(request);
-    const gameInfoResult = resultEvents == null ? [] : resultEvents.map(event => event.args as unknown as GameInfoResult);
-    if (store.getState().api.status != ApiStatus.ERROR) {
-        store.dispatch(endTransaction())
-        store.dispatch(changeApiStatus(ApiStatus.SUCCESS));
+): Promise<{gameId: number, game: string}> => {
+    try {
+        const chainName = store.getState().wallet.chainFormattedName;
+        const contract = await getGameContract(chainName);
+        const result = await contract.callStatic.getGameInfo(x, y);
+        return {gameId: result[0], game: result[1]};
+    } catch (error) {
+        console.error('getGameInfoApi: An error occurred = ', error);
+        throw error;
     }
-    console.log('getGameInfo: end = ', gameInfoResult);
-    return gameInfoResult;
+}
+
+export const getCellDetails = async (
+    x: number,
+    y: number,
+): Promise<{game: string, coordinate: number, tokenType: number, tokenId: number, image: string}> => {
+    try {
+        console.log("getCellDetails start")
+        const chainName = store.getState().wallet.chainFormattedName;
+        const contract = await getGameContract(chainName);
+        const result = await contract.callStatic.cellDetails(x, y);
+        return {
+            game: result[0],
+            coordinate: result[1],
+            tokenType: result[2],
+            tokenId: result[3],
+            image: result[4]
+        };
+    } catch (error) {
+        console.error('getCellDetailsApi: An error occurred = ', error);
+        throw error;
+    }
 }
 
 async function getGameContract(
     chain: string,
 ): Promise<ethers.Contract> {
-    console.log('getGameContract: chain = ', chain);
     const contractAddress: string = process.env.CONTRACT_ADDRESS;
     console.log('getGameContract: contractAddress = ', contractAddress);
     const signer = store.getState().wallet.signer;
-    console.log('getGameContract: signer = ', signer);
-    console.log('getGameContract: chainAbi = ', iGridAbi);
     return new ethers.Contract(contractAddress, iGridAbi, signer);
 }
 

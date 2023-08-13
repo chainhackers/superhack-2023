@@ -7,7 +7,6 @@ export default class PreloadGameScene extends Phaser.Scene {
 
     preload(): void {
         this.load.image(SPRITES.CELL.KEY, SPRITES.CELL.PATH);
-        this.load.image(SPRITES.CELL.HOVER.KEY, SPRITES.CELL.HOVER.PATH);
     }
 
     create() {
