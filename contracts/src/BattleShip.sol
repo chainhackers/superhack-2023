@@ -68,9 +68,9 @@ contract BattleShip is IGame, Ownable {
 
     function moveResult(uint256 moveId, uint8 result, uint256 gameId, ZoKratesStructs.Proof calldata proof, uint256[] calldata inputs) external {
         uint256[3] memory _inputs;
-        _inputs[0] = moveId;
-        _inputs[1] = result;
-        _inputs[2] = gameId;
+        _inputs[0] = inputs[0];
+        _inputs[1] = inputs[1];
+        _inputs[2] = inputs[2];
         BattleShipMoveVerifier.Proof memory _proof;
         _proof.a.X = proof.a.X;
         _proof.a.Y = proof.a.Y;
