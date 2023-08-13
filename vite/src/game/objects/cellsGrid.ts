@@ -11,11 +11,12 @@ export default class CellsGrid {
     private _offsetX: number;
     private _offsetY: number;
     private _overlay: Phaser.GameObjects.Rectangle;
-    private _isInteractable: boolean = true;
     private _spaceBarPressed: boolean = false;
     private _overlayText: Phaser.GameObjects.Text;
 
-    constructor(scene: Scene, gridSize: number) {
+    constructor(scene: Scene, gridSize: number, startX: number, startY: number) {
+        this._offsetX = startX;
+        this._offsetY = startY;
         this.create(scene, gridSize);
         this.setupKeyboardListeners(scene);
     }
@@ -31,8 +32,6 @@ export default class CellsGrid {
     }
 
     private create(scene: Scene, gridSize: number): void {
-        this._offsetX = (Constants.SCREEN_WIDTH - gridSize * this.CellSize) / 2;
-        this._offsetY = (Constants.SCREEN_HEIGHT - gridSize * this.CellSize) / 2;
         this.createOverlay(scene, gridSize);
     }
 
@@ -102,18 +101,6 @@ export default class CellsGrid {
         return this._grid.flat().filter(predicate);
     }
 
-    public setCellsInteractable(interactable: boolean): void {
-        if (this._grid === undefined) {
-            return;
-        }
-        this._grid.forEach((row: Cell[]) => {
-            row.forEach((cell: Cell) => {
-                cell.isInteractable = interactable;
-            });
-        });
-        this._isInteractable = interactable;
-    }
-
     private updateCellsView(): void {
         this._grid.forEach((row: Cell[]) => {
             row.forEach((cell: Cell) => {
@@ -122,27 +109,7 @@ export default class CellsGrid {
         });
     }
 
-    get isInteractable(): boolean {
-        return this._isInteractable;
-    }
-
     get length(): number {
         return this._grid.length;
-    }
-
-    get offsetX(): number {
-        return this._offsetX;
-    }
-
-    get offsetY(): number {
-        return this._offsetY;
-    }
-
-    get coveredCellsCount(): number {
-        return this.filter(cell => !cell.isOpen).length;
-    }
-
-    get revealedCellsCount(): number {
-        return this.filter(cell => cell.isOpen).length;
     }
 }

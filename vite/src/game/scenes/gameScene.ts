@@ -1,12 +1,9 @@
 import Phaser from 'phaser';
 import CellsGrid from "../objects/cellsGrid";
 import * as Constants from '../constants/gameConstants';
-import {store} from "@store";
-import {ApiStatus} from "@stateTypes";
 
 export default class GameScene extends Phaser.Scene {
     private readonly gridSize = Constants.GRID_SIZE;
-    private grid: CellsGrid;
     private isDragging: boolean;
     private dragStart: { x: number, y: number };
     private startCameraPos: { x: number, y: number };
@@ -15,6 +12,7 @@ export default class GameScene extends Phaser.Scene {
     private minZoom: number = 0.7;
     private maxZoom: number = 2;
     private zoomStep: number = 0.05;
+    private grids: CellsGrid[][];
 
     private spaceKey: Phaser.Input.Keyboard.Key;
 
@@ -23,7 +21,14 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create(): void {
-        this.grid = new CellsGrid(this, this.gridSize);
+        this.grids = Array(10).fill(null).map((_, row) => {
+            return Array(10).fill(null).map((_, col) => {
+                const offsetX = col * 10 * Constants.CELL_SIZE + col * 10 * Constants.CELL_SPACING;
+                const offsetY = row * 10 * Constants.CELL_SIZE + row * 10 * Constants.CELL_SPACING;
+                return new CellsGrid(this, this.gridSize, offsetX, offsetY);
+            });
+        });
+
 
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
@@ -32,16 +37,6 @@ export default class GameScene extends Phaser.Scene {
         this.input.on('pointerup', this.stopDrag, this);
         this.input.on('pointermove', this.doDrag, this);
         this.input.on('wheel', this.zoomCamera, this);
-    }
-
-    update(): void {
-        if (store.getState().api.status == ApiStatus.STARTED || store.getState().api.status == ApiStatus.PENDING
-            || store.getState().api.status == ApiStatus.WAITING_RESPONSE && this.grid.isInteractable) {
-            this.grid.setCellsInteractable(false);
-        } else if (store.getState().api.status == ApiStatus.IDLE ||store.getState().api.status == ApiStatus.SUCCESS
-            || store.getState().api.status == ApiStatus.ERROR) {
-            this.grid.setCellsInteractable(!this.spaceKey.isDown)
-        }
     }
 
     startDrag(pointer: Phaser.Input.Pointer): void {
