@@ -81,9 +81,9 @@ export default class Cell extends Phaser.GameObjects.Image {
     }
 
     checkCellInteractable(): boolean {
-        return !this._spaceBarPressed
-            || store.getState().api.status == ApiStatus.STARTED
+        return !this._spaceBarPressed &&
+            !(store.getState().api.status == ApiStatus.STARTED
             || store.getState().api.status == ApiStatus.PENDING
-            || store.getState().api.status == ApiStatus.WAITING_RESPONSE;
+            || store.getState().api.status == ApiStatus.WAITING_RESPONSE);
     }
 }
