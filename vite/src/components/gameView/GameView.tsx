@@ -16,12 +16,10 @@ const GameView: React.FC = () => {
             backgroundColor,
             scale: {
                 autoCenter: Phaser.Scale.CENTER_BOTH,
-                mode: Phaser.Scale.FIT,
+                mode: Phaser.Scale.WIDTH_CONTROLS_HEIGHT,
                 width: SCREEN_WIDTH,
                 height: SCREEN_HEIGHT,
             },
-            width: 800,
-            height: 600,
             scene: [PreloadGameScene, GameScene],
         };
 
