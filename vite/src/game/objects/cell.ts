@@ -22,8 +22,6 @@ export default class Cell extends Phaser.GameObjects.Image {
         this._isOpen = false;
         this._isInteractable = true;
 
-        this.updateView();
-
         this.on('pointerover', this.scaleUp);
         this.on('pointerout', this.scaleDown);
         this.on('pointerdown', this.handlePointerDown);

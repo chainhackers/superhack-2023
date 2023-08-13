@@ -1,6 +1,7 @@
 import * as Constants from "../constants/gameConstants";
 import Cell from "../objects/cell";
 import Phaser, { Scene } from "phaser";
+import {store} from "@store";
 
 export default class CellsGrid {
     public readonly CellSize = Constants.CELL_SIZE;
@@ -9,10 +10,23 @@ export default class CellsGrid {
     private _grid: Cell[][];
     private _offsetX: number;
     private _offsetY: number;
-
+    private _overlay: Phaser.GameObjects.Rectangle;
     private _isInteractable: boolean = true;
+    private _spaceBarPressed: boolean = false;
+
     constructor(scene: Scene, gridSize: number) {
         this.create(scene, gridSize);
+        this.setupKeyboardListeners(scene);
+    }
+
+    private setupKeyboardListeners(scene: Scene): void {
+        scene.input.keyboard.on('keydown-SPACE', () => {
+            this._spaceBarPressed = true;
+        });
+
+        scene.input.keyboard.on('keyup-SPACE', () => {
+            this._spaceBarPressed = false;
+        });
     }
 
     private create(scene: Scene, gridSize: number): void {
@@ -32,6 +46,37 @@ export default class CellsGrid {
                         return cell;
                     });
             });
+
+        this.createOverlay(scene, gridSize);
+    }
+
+    private createOverlay(scene: Scene, gridSize: number): void {
+        const overlayWidth = gridSize * (this.CellSize + this.CellSpacing) - this.CellSpacing;
+
+        this._overlay = new Phaser.GameObjects.Rectangle(
+            scene,
+            this._offsetX + overlayWidth / 2, // centering the overlay relative to the grid
+            this._offsetY + overlayWidth / 2,
+            overlayWidth,
+            overlayWidth,
+            0x000000, 0.5
+        );
+
+        this._overlay.setInteractive();
+        this._overlay.on('pointerdown', this.hideOverlay.bind(this));
+        scene.add.existing(this._overlay);
+
+        this.setCellsInteractable(false);
+    }
+
+    private hideOverlay(): void {
+        if (this._spaceBarPressed || !store.getState().wallet.isConnected) {
+            return;
+        }
+
+        this._overlay.setVisible(false);
+        this.setCellsInteractable(true);
+        this.updateCellsView();
     }
 
     public clear(): void {
@@ -51,11 +96,10 @@ export default class CellsGrid {
         this._isInteractable = interactable;
     }
 
-    public setCellsDisabled(): void {
-        this.setCellsInteractable(false);
+    private updateCellsView(): void {
         this._grid.forEach((row: Cell[]) => {
             row.forEach((cell: Cell) => {
-                cell.setTint(Constants.CELL_DISABLED_TINT);
+                cell.updateView();
             });
         });
     }
