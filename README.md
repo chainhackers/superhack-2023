@@ -109,7 +109,8 @@ ETHERSCAN_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXX_FIXME
 Source the .env file and deploy the contracts:
 ```shell
 source .env
-forge script script/Deploy.s.sol:DeployScript --rpc-url $GOERLI_RPC_URL --broadcast --verify
+forge script script/GameRegistryDeploy.s.sol:GameRegistryDeploy --rpc-url $GOERLI_RPC_URL --broadcast --verify
+
 ```
 ```shell
 # ...
@@ -121,4 +122,25 @@ forge script script/Deploy.s.sol:DeployScript --rpc-url $GOERLI_RPC_URL --broadc
 #Transactions saved to: ...
 #
 #Sensitive values saved to: ...
+```
+Deploy BattleShip:
+```shell
+forge script script/BattleShipDeploy.s.sol:BattleShipDeploy --rpc-url $GOERLI_RPC_URL --broadcast --verify -v
+```
+```shell
+# Details: `Pass - Verified`
+# Contract successfully verified
+# All (1) contracts were verified!
+```
+
+## Upgrade!
+### Upgrade `GameRegistry` in Goerli
+```shell
+source .env
+forge script script/GameRegistryUpgrade.s.sol:GameRegistryUpgrade --rpc-url $GOERLI_RPC_URL --broadcast --verify -v
+```
+```shell
+#Details: `Pass - Verified`
+#Contract successfully verified
+#All (1) contracts were verified!
 ```

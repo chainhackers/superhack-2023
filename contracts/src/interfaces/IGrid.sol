@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 interface IGrid {
+    // TODO moved o IGame, drop here
     //  Move struct to store moves until they are answered by the game contract.
     struct Move {
         uint8 move;
@@ -23,11 +24,12 @@ interface IGrid {
 
     /**
      * @notice Get game details by its coordinates on the grid.
-     * @notice World coordinates are converted to game coordinates,
+     * @notice World coordinates are converted to game coordinates.
+     * @dev x and y are transformed to game ID with Cantor pairing function for two signed ints
      * @return gameId Unique identifier for the game.
      * @return game Address of the game contract.
      */
-    function getGameInfo(int256 x, int256 y) external returns (uint256 gameId, address game);
+    function getGameInfo(int256 x, int256 y) external view returns (uint256 gameId, address game);
 
     /**
      * @notice Details of the cell at the given coordinates.

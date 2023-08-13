@@ -14,14 +14,19 @@ import {ZoKratesStructs} from "../lib/ZoKratesStructs.sol";
     @notice to answer users' actions update the game state.
 */
 interface IGame {
+    //  Move struct to store moves until they are answered by the game contract.
+    struct MoveSent {
+        uint8 coordinate;
+        uint256 gameId;
+        address player;
+    }
+
     // Event emitted when a new game is initialized
     event GameInit(uint256 indexed gameId, uint256 digest);
     // Event emitted when a player makes a move
-    event Move(uint256 id, uint8 coordinate, uint256 indexed gameId, address indexed player);
+    event Move(uint256 id, uint8 coordinate, uint256 indexed gameId, address indexed player, uint256 digest);
     // Event emitted when a game answers a player move
     event MoveResult(uint256 id, uint8 result, uint256 indexed gameId);
-
-
 
     /**
         @notice Game backends must call this function before a game can be played,
