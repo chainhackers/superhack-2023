@@ -10,9 +10,7 @@ from utils import parse_proof
 from zokrates import zokrates_prove
 from game import Game
 from log_setup import setup_logger
-from dotenv import load_dotenv
 
-load_dotenv()
 logger = setup_logger()
 
 HORIZONTAL = 1
@@ -38,7 +36,7 @@ class BattleshipGame(Game):
         self._zokrates_init_handler_dir = zokrates_init_handler_dir
         self._zokrates_move_handler_dir = zokrates_move_handler_dir
         self.board_size()
-        self._game_id = game_id
+        self._game_id = int(game_id)
         self.calculate_filled_cells()
 
     @property
@@ -124,7 +122,7 @@ class BattleshipGame(Game):
         })
         signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
         tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        logger.info(f"TX SENT {tx_hash} FROM GAME_INIT")
+        logger.info(f"TX SENT {tx_hash.hex()} FROM GAME_INIT")
 
     def _zokrates_move_validator(self, coordinate, digest):
         """
@@ -173,6 +171,7 @@ class BattleshipGame(Game):
         :param result: int
         :return:
         """
+        logger.info(f'Sending transaction with result {result[1]} to contract')
         tx = self.contract.functions.moveResult(
             self.w3.to_wei(move_id, "wei"),  # Convert to type uint256
             self.w3.to_wei(game_id, "wei"),  # Convert to type uint256
@@ -184,8 +183,8 @@ class BattleshipGame(Game):
         })
         signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
         tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        logger.info(f'SEND TRANSACTION WITH RESULT {result[1]} TO CONTRACT')
-        logger.info(f'TRANSACTION DETAILS'
+        logger.info(f"tx sent {tx_hash.hex()} from move_result")
+        logger.info(f'transaction details'
                     f'{self.w3.eth.wait_for_transaction_receipt(tx_hash)}')
 
     def player_move(self, value):
@@ -211,10 +210,13 @@ class BattleshipGame(Game):
             "player": event['args']['player'],
             "digest": event['args']['digest']
         }
+        logger.info(f'Event received: {msg}')
         if self._game_id == msg['gameId']:
-            print(msg)
+            logger.info("Call player_move function")
             self.player_move(msg)
             logger.info(msg)
+        else:
+            logger.info(f'Wrong game id {msg["gameId"]} != {self._game_id}')
 
     def subscribe_to_contract_events(self):
         """
