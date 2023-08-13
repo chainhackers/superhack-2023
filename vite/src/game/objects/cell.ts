@@ -71,10 +71,13 @@ export default class Cell extends Phaser.GameObjects.Image {
         if (!this.checkCellInteractable() || this.isOpen) return;
         const move: MoveInfo[] = await Api.sendMove(this.globalOnGridXPosition, this.globalOnGridYPosition);
         console.log("MOVE_ID: " + move[0].id)
-        Api.listenToMoveAnsweredEvent(move[0].id, (gameId, moveId, result, rewardValue, isGameOver) => {
+        const randomSprite = Math.random() > 0.5 ? SPRITES.CELL.HIT.KEY : SPRITES.CELL.MISS.KEY;
+        this.setTexture(randomSprite).setScale(this.size / this.width);
+        /*Api.listenToMoveAnsweredEvent(move[0].id, (gameId, moveId, result, rewardValue, isGameOver) => {
             console.log("MOVE ANSWERED RAISED" + `gameId=${gameId}` + `isGameOver=${isGameOver}`)
-            this.updateView();
-        });
+            this.setTexture(SPRITES.CELL.HIT.KEY).setScale(this.size / this.width);
+            //this.updateView();
+        });*/
     }
 
     updateView(): void {
