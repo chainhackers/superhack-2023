@@ -40,8 +40,9 @@ interface IGameRegistry is IERC1155Upgradeable {
     event MoveAnswered(uint256 indexed gameId, uint256 indexed moveId, MoveResult result, uint256 rewardValue, bool isGameOver);
 
     /**
-     * @dev Register a new game contract to the grid.
-     *
+     * @notice Register a new game contract to the grid.
+     * @notice Mints a new ERC-1155 token for the game or transfers the existing one to the registrar.
+     * @dev must check for existing game contracts at the given coordinates.
      * @param gameContract Address of the game contract.
      * @param x X coordinate of the upper left cell of the game in the grid.
      * @param y Y coordinate of the upper left cell of the game in the grid.
@@ -49,11 +50,24 @@ interface IGameRegistry is IERC1155Upgradeable {
     function registerGame(address gameContract, int256 x, int256 y) external;
 
     /**
+      * @notice Unregister a game contract from the grid.
+      * @notice Burns the ERC-1155 token representing the game.
+      * @notice the owner of the token can unregister a game anytime.
+      * @notice the game contract can unregister itself if it is not in use.
+      * @notice everyone else can unregister a game after it accumulates more timeout faults
+      * @notice than the predefined threshold.
+
+      * @param gameId Unique identifier for the game.
+    */
+    function unregisterGame(uint256 gameId) external;
+
+    /**
      * @dev Register a timeout request due to a game not processing moves in time.
      *
      * @param gameId Unique identifier for the game.
+     * @param moveId Unique identifier for the unanswered move that was sent long ago.
      */
-    function requestTimeout(uint256 gameId) external;
+    function reportMoveTimeoutFault(uint256 gameId, uint256 moveId) external;
 
     /**
      * @dev Setup a game with required parameters.
@@ -76,4 +90,19 @@ interface IGameRegistry is IERC1155Upgradeable {
      * @param isGameOver Boolean indicating if the game is over.
      */
     function answerPlayerMove(uint256 gameId, uint256 moveId, MoveResult result, uint256 rewardValue, bool isGameOver) external;
+
+    /**
+     * @notice Whether a game is registered at the given coordinates.
+     *
+     * @param x X coordinate of the game on the grid.
+     * @param y Y coordinate of the game on the grid.
+     */
+    function gameExists(int256 x, int256 y) external view returns (bool);
+
+    /**
+        @notice The amount of accumulated move timeout faults for a game.
+        @param gameId Unique identifier for the game.
+        @return The amount of accumulated move timeout faults for a game.
+     */
+    function moveTimeoutFaults(uint256 gameId) external view returns (uint256);
 }

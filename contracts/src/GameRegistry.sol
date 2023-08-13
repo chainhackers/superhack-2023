@@ -12,6 +12,9 @@ import "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgr
 import "../lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol";
 
 contract GameRegistry is IGameRegistry, IGrid, UUPSUpgradeable, OwnableUpgradeable, ERC1155Upgradeable {
+    uint256 public constant MOVE_TIMEOUT = 1 hours;
+    uint256 public constant MAX_TIMEOUT_FAULTS = 1;
+
     // @dev incrementing ID for moves
     uint256 public nextMoveId;
 
@@ -20,6 +23,14 @@ contract GameRegistry is IGameRegistry, IGrid, UUPSUpgradeable, OwnableUpgradeab
 
     // @dev mapping of game IDs to game entries
     mapping(uint256 => RegisteredGameEntry) public gameEntries;
+
+    // @dev move timestamps
+    // @dev consider adding the ts field to Move struct, that breaks upgrades
+    mapping(uint256 => uint256) public moveTimestamps;
+
+    // @dev faults accumulated per game
+    // @dev consider adding the faults field to RegisteredGameEntry struct, that breaks upgrades
+    mapping(uint256 => uint256) public moveTimeoutFaults;
 
     // @dev initializer function for upgradeable contracts
     function initialize(string calldata _uri) public initializer {
@@ -30,14 +41,42 @@ contract GameRegistry is IGameRegistry, IGrid, UUPSUpgradeable, OwnableUpgradeab
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
+    /**
+     * @notice Register a new game contract to the grid.
+     * @notice Mints a new ERC-1155 token for the game or transfers the existing one to the registrar.
+     * @dev must check for existing game contracts at the given coordinates.
+     * @param x X coordinate of the upper left cell of the game in the grid.
+     * @param y Y coordinate of the upper left cell of the game in the grid.
+     */
     function registerGame(address game, int256 x, int256 y) external override {
         uint256 gameId = Utils.pair(x, y);
+        require(!_gameExists(gameId), "GameRegistry: a game already exists at this location");
         gameEntries[gameId] = RegisteredGameEntry(game, x, y);
         emit GameRegistered(gameId, game, msg.sender);
+        if (balanceOf(address(this), gameId) == 0) {
+            _mint(address(this), gameId, 1, "");
+        }
+        safeTransferFrom(address(this), msg.sender, gameId, 1, "");
     }
 
-    function requestTimeout(uint256 gameId) external override {
-        emit TimeoutRequested(gameId, msg.sender);
+    /**
+  * @notice Unregister a game contract from the grid.
+      * @notice Burns the ERC-1155 token representing the game.
+      * @notice the owner of the token can unregister a game anytime.
+      * @notice the game contract can unregister itself if it is not in use.
+      * @notice everyone else can unregister a game after it accumulates more timeout faults
+      * @notice than the predefined threshold.
+
+      * @param gameId Unique identifier for the game.
+    */
+    function unregisterGame(uint256 gameId) external {
+        require(_gameExists(gameId), "GameRegistry: game not found");
+        require(
+            balanceOf(msg.sender, gameId) > 0 ||
+            msg.sender == gameEntries[gameId].game ||
+            moveTimeoutFaults[gameId] > MAX_TIMEOUT_FAULTS, "GameRegistry: not authorized");
+        delete gameEntries[gameId];
+        _burn(msg.sender, gameId, 1); //TODO Registry must be the operator or else override some of OZ ERC1155 functions
     }
 
     // @notice Called by the game contract to setup a game
@@ -73,6 +112,21 @@ contract GameRegistry is IGameRegistry, IGrid, UUPSUpgradeable, OwnableUpgradeab
         nextMoveId++;
     }
 
+    /**
+     * @dev Register a timeout request due to a game not processing moves in time.
+     *
+     * @param gameId Unique identifier for the game.
+     * @param moveId Unique identifier for the unanswered move that was sent long ago.
+     */
+    function reportMoveTimeoutFault(uint256 gameId, uint256 moveId) external {
+        //TODO check if the move is unanswered and happened more than MOVE_TIMEOUT ago
+        moveTimeoutFaults[gameId]++;
+    }
+
+    // @notice Get game details by its coordinates on the grid.
+    // @notice World coordinates are converted to game coordinates.
+    // @dev x and y are transformed to game ID with Cantor pairing function for two signed ints
+    // @return gameId Unique identifier for the game.
     function getCellGameId(int256 x, int256 y) internal view returns (uint256 gameId){
         gameId = Utils.pair(x - x % 10, y - y % 10);
     }
@@ -84,7 +138,7 @@ contract GameRegistry is IGameRegistry, IGrid, UUPSUpgradeable, OwnableUpgradeab
      * @return gameId Unique identifier for the game.
      * @return game Address of the game contract.
      */
-    function getGameInfo(int256 x, int256 y) external returns (uint256 gameId, address game){
+    function getGameInfo(int256 x, int256 y) external view returns (uint256 gameId, address game){
         gameId = Utils.pair(x, y);
         game = gameEntries[gameId].game;
     }
@@ -95,5 +149,18 @@ contract GameRegistry is IGameRegistry, IGrid, UUPSUpgradeable, OwnableUpgradeab
         tokenType = 1;
         tokenId = coordinate;
         url = "https://arweave.net/rip5RY1wf8gKBl5CxEAKQHG9tc09SqyMFwJDOYT8xX0/{id}";
+    }
+
+    function gameExists(int256 x, int256 y) external view returns (bool){
+        return _gameExists(x, y);
+    }
+
+    function _gameExists(int256 x, int256 y) internal view returns (bool) {
+        uint256 gameId = Utils.pair(x, y);
+        return _gameExists(gameId);
+    }
+
+    function _gameExists(uint256 gameId) internal view returns (bool) {
+        return gameEntries[gameId].game != address(0);
     }
 }

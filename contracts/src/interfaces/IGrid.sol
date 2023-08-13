@@ -28,7 +28,7 @@ interface IGrid {
      * @return gameId Unique identifier for the game.
      * @return game Address of the game contract.
      */
-    function getGameInfo(int256 x, int256 y) external returns (uint256 gameId, address game);
+    function getGameInfo(int256 x, int256 y) external view returns (uint256 gameId, address game);
 
     /**
      * @notice Details of the cell at the given coordinates.
