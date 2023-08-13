@@ -104,7 +104,8 @@ class BattleshipGame(Game):
         return zokrates_prove(
             self._zokrates_executable_location,
             self._zokrates_init_handler_dir,
-            *self.ships_positions
+            *self.ships_positions,
+            logger=logger,
         )
 
     def call_game_init(self, proof):
@@ -138,6 +139,7 @@ class BattleshipGame(Game):
             *self.ships_positions,
             digest,
             coordinate,
+            logger=logger,
         )
 
     def calculate_result(self, guess):
@@ -173,9 +175,9 @@ class BattleshipGame(Game):
         """
         logger.info(f'Sending transaction with result {result[1]} to contract')
         tx = self.contract.functions.moveResult(
-            self.w3.to_wei(move_id, "wei"),  # Convert to type uint256
-            self.w3.to_wei(game_id, "wei"),  # Convert to type uint256
+            move_id,
             result[0],  # Status code
+            game_id,
             *parse_proof(proof)
         ).build_transaction({
             "from": self.account.address,
