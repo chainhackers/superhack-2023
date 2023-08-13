@@ -7,16 +7,22 @@ import {IGameRegistry} from "../src/interfaces/IGameRegistry.sol";
 import {GameRegistry} from "../src/GameRegistry.sol";
 import {BattleShip} from "../src/BattleShip.sol";
 import {ZoKratesStructs} from "../src/lib/ZoKratesStructs.sol";
+import {BattleShipInitVerifier} from "../src/verifiers/battleship_init.sol";
+import {BattleShipMoveVerifier} from "../src/verifiers/battleship_move.sol";
 
 contract BattleShipTest is Test {
     address constant BACKEND = 0xb95A131ABF8c82aC9A3e9715Fb2eb1f7E2AAfcE8;
 
     BattleShip public battleShip;
     IGameRegistry public gameRegistry;
+    BattleShipInitVerifier public initVerifier;
+    BattleShipMoveVerifier public moveVerifier;
 
     function setUp() public {
+        initVerifier = new BattleShipInitVerifier();
+        moveVerifier = new BattleShipMoveVerifier();
         gameRegistry = new GameRegistry();
-        battleShip = new BattleShip(gameRegistry, BACKEND);
+        battleShip = new BattleShip(gameRegistry, BACKEND, initVerifier, moveVerifier);
     }
 
     function testIsValidMove(uint8 x, uint256 gameId) public {

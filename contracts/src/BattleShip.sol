@@ -4,21 +4,40 @@ pragma solidity 0.8.20;
 import "./interfaces/IGame.sol";
 import "./interfaces/IGameRegistry.sol";
 import "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
+import "./verifiers/battleship_init.sol";
+import "./verifiers/battleship_move.sol";
+
+//interface IInitVerifier {
+//    function verifyTx(ZoKratesStructs.Proof memory proof, uint256[1] memory inputs) external view returns (bool);
+//}
+//
+//interface IMoveVerifier {
+//    function verifyTx(ZoKratesStructs.Proof memory proof, uint256[3] memory inputs) external view returns (bool);
+//}
 
 contract BattleShip is IGame, Ownable {
     uint256 public number;
     uint256 public digest;
     IGameRegistry public registry;
+    BattleShipInitVerifier public initVerifier;
+    BattleShipMoveVerifier public moveVerifier;
 
     constructor(
         IGameRegistry _registry,
-        address backend
+        address backend,
+        BattleShipInitVerifier _initVerifier,
+        BattleShipMoveVerifier _moveVerifier
     ){
         registry = _registry;
+        initVerifier = _initVerifier;
+        moveVerifier = _moveVerifier;
         transferOwnership(backend);
     }
 
     function initGame(uint256 gameId, ZoKratesStructs.Proof calldata proof, uint256[] calldata inputs) external {
+        uint256[1] memory _inputs;
+        _inputs[0] = inputs[0];
+//        require(initVerifier.verifyTx(proof, _inputs), "Invalid proof");
         digest = inputs[0];
         emit GameInit(gameId, digest);
     }
@@ -33,6 +52,11 @@ contract BattleShip is IGame, Ownable {
     }
 
     function moveResult(uint256 moveId, uint8 result, uint256 gameId, ZoKratesStructs.Proof calldata proof, uint256[] calldata inputs) external {
+        uint256[3] memory _inputs;
+        _inputs[0] = moveId;
+        _inputs[1] = result;
+        _inputs[2] = gameId;
+//        require(moveVerifier.verifyTx(proof, _inputs), "Invalid proof");
         require(digest == inputs[0], "Invalid digest");
         emit MoveResult(moveId, result, gameId);
     }

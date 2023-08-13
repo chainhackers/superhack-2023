@@ -3,6 +3,8 @@ pragma solidity ^0.8.13;
 
 import {Script, console2} from "forge-std/Script.sol";
 import "../src/BattleShip.sol";
+import "../src/verifiers/battleship_init.sol";
+import "../src/verifiers/battleship_move.sol";
 
 contract BattleShipDeploy is Script {
     //Goerli
@@ -14,8 +16,16 @@ contract BattleShipDeploy is Script {
         address deployerAddr = vm.addr(deployerPrivateKey);
 
         vm.startBroadcast(deployerPrivateKey);
+        
+        BattleShipInitVerifier initVerifier = new BattleShipInitVerifier();
+        BattleShipMoveVerifier moveVerifier = new BattleShipMoveVerifier();
 
-        BattleShip battleShip = new BattleShip(IGameRegistry(REGISTRY), BACKEND);
+        BattleShip battleShip = new BattleShip(
+            IGameRegistry(REGISTRY),
+            BACKEND,
+            initVerifier,
+            moveVerifier
+        );
 
         vm.stopBroadcast();
     }
