@@ -2,6 +2,7 @@ import * as Constants from "../constants/gameConstants";
 import Cell from "../objects/cell";
 import Phaser, { Scene } from "phaser";
 import {store} from "@store";
+import * as Api from "../../api/api"
 
 export default class CellsGrid {
     public readonly CellSize = Constants.CELL_SIZE;
@@ -35,8 +36,17 @@ export default class CellsGrid {
         });
     }
 
-    private create(scene: Scene, gridSize: number): void {
-        this.createOverlay(scene, gridSize);
+    private async create(scene: Scene, gridSize: number): Promise<void> {
+        while (!store.getState().wallet.isConnected) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        const gameExists = await Api.gameExists(this._gridX, this._gridY);
+        if (!gameExists) {
+            this.createOverlay(scene, gridSize);
+            return;
+        }
+        this.createCells(scene, gridSize);
+        this.updateCellsView();
     }
 
     private createCells(scene: Scene, gridSize: number): void {
@@ -71,7 +81,7 @@ export default class CellsGrid {
             scene,
             this._offsetX + overlayWidth / 2,
             this._offsetY + overlayWidth / 2,
-            "click to initialize game",
+            "NOTHING IS HERE YET",
             {
                 fontSize: '24px',
                 color: '#ffffff',
@@ -80,21 +90,13 @@ export default class CellsGrid {
         );
         this._overlayText.setOrigin(0.5);
 
-        this._overlay.setInteractive();
-        this._overlay.on('pointerdown', this.hideOverlay.bind(this, scene, gridSize));
         scene.add.existing(this._overlay);
         scene.add.existing(this._overlayText);
     }
 
-    private hideOverlay(scene: Scene, gridSize: number): void {
-        if (this._spaceBarPressed || !store.getState().wallet.isConnected) {
-            return;
-        }
-
+    private async hideOverlay(scene: Scene, gridSize: number): Promise<void> {
         this._overlay.setVisible(false);
         this._overlayText.setVisible(false);
-        this.createCells(scene, gridSize);
-        this.updateCellsView();
     }
 
     public clear(): void {

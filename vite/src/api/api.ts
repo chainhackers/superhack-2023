@@ -111,6 +111,21 @@ export const getGameInfo = async (
     }
 }
 
+export const gameExists = async (
+    x: number,
+    y: number,
+): Promise<boolean> => {
+    try {
+        const chainName = store.getState().wallet.chainFormattedName;
+        const contract = await getGameContract(chainName);
+        const result = await contract.callStatic.gameExists(x, y);
+        return result;
+    } catch (error) {
+        console.error('gameExistsApi: An error occurred = ', error);
+        throw error;
+    }
+}
+
 export const getCellDetails = async (
     x: number,
     y: number,
