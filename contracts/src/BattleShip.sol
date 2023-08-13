@@ -7,14 +7,6 @@ import "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 import "./verifiers/battleship_init.sol";
 import "./verifiers/battleship_move.sol";
 
-//interface IInitVerifier {
-//    function verifyTx(ZoKratesStructs.Proof memory proof, uint256[1] memory inputs) external view returns (bool);
-//}
-//
-//interface IMoveVerifier {
-//    function verifyTx(ZoKratesStructs.Proof memory proof, uint256[3] memory inputs) external view returns (bool);
-//}
-
 contract BattleShip is IGame, Ownable {
     uint256 public number;
     uint256 public digest;
@@ -47,7 +39,7 @@ contract BattleShip is IGame, Ownable {
     }
 
     function move(uint8 coordinate, uint256 gameId) external {
-        emit Move(number, coordinate, gameId, msg.sender);
+        emit Move(number, coordinate, gameId, msg.sender, digest);
         number++;
     }
 

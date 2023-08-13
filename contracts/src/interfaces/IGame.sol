@@ -17,7 +17,7 @@ interface IGame {
     // Event emitted when a new game is initialized
     event GameInit(uint256 indexed gameId, uint256 digest);
     // Event emitted when a player makes a move
-    event Move(uint256 id, uint8 coordinate, uint256 indexed gameId, address indexed player);
+    event Move(uint256 id, uint8 coordinate, uint256 indexed gameId, address indexed player, uint256 digest);
     // Event emitted when a game answers a player move
     event MoveResult(uint256 id, uint8 result, uint256 indexed gameId);
 

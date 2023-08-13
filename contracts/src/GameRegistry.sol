@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IGameRegistry.sol";
 import "./interfaces/IGrid.sol";
+import "./interfaces/IGame.sol";
 
 import "./lib/Utils.sol";
 
@@ -63,12 +64,18 @@ contract GameRegistry is IGameRegistry, IGrid, UUPSUpgradeable, OwnableUpgradeab
     // @param x X coordinate of the game on the grid.
     // @param y Y coordinate of the game on the grid.
     function sendMove(int256 x, int256 y) external {
-        uint8 move = uint8(uint256((y * 10 + x) % 100));
-        uint256 gameId = 1;
+        uint256 gameId = getCellGameId(x, y);
+        address game = gameEntries[gameId].game;
+        require(game != address(0), "GameRegistry: game not found");
+        uint8 move = uint8(uint((y % 10) * 10 + (x % 10)));
+        IGame(game).move(move, gameId);
         emit MoveSent(nextMoveId, move, gameId, msg.sender);
         nextMoveId++;
     }
 
+    function getCellGameId(int256 x, int256 y) internal view returns (uint256 gameId){
+        gameId = Utils.pair(x - x % 10, y - y % 10);
+    }
 
     /**
      * @notice Get game details by its coordinates on the grid.
