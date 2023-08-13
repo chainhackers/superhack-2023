@@ -13,6 +13,7 @@ export default class CellsGrid {
     private _overlay: Phaser.GameObjects.Rectangle;
     private _isInteractable: boolean = true;
     private _spaceBarPressed: boolean = false;
+    private _overlayText: Phaser.GameObjects.Text;
 
     constructor(scene: Scene, gridSize: number) {
         this.create(scene, gridSize);
@@ -32,7 +33,10 @@ export default class CellsGrid {
     private create(scene: Scene, gridSize: number): void {
         this._offsetX = (Constants.SCREEN_WIDTH - gridSize * this.CellSize) / 2;
         this._offsetY = (Constants.SCREEN_HEIGHT - gridSize * this.CellSize) / 2;
+        this.createOverlay(scene, gridSize);
+    }
 
+    private createCells(scene: Scene, gridSize: number): void {
         this._grid = Array(gridSize)
             .fill(null)
             .map((_, rowIndex: number) => {
@@ -46,8 +50,6 @@ export default class CellsGrid {
                         return cell;
                     });
             });
-
-        this.createOverlay(scene, gridSize);
     }
 
     private createOverlay(scene: Scene, gridSize: number): void {
@@ -62,20 +64,33 @@ export default class CellsGrid {
             0x000000, 0.5
         );
 
-        this._overlay.setInteractive();
-        this._overlay.on('pointerdown', this.hideOverlay.bind(this));
-        scene.add.existing(this._overlay);
+        this._overlayText = new Phaser.GameObjects.Text(
+            scene,
+            this._offsetX + overlayWidth / 2,
+            this._offsetY + overlayWidth / 2,
+            "click to initialize game",
+            {
+                fontSize: '24px',
+                color: '#ffffff',
+                align: 'center'
+            }
+        );
+        this._overlayText.setOrigin(0.5);
 
-        this.setCellsInteractable(false);
+        this._overlay.setInteractive();
+        this._overlay.on('pointerdown', this.hideOverlay.bind(this, scene, gridSize));
+        scene.add.existing(this._overlay);
+        scene.add.existing(this._overlayText);
     }
 
-    private hideOverlay(): void {
+    private hideOverlay(scene: Scene, gridSize: number): void {
         if (this._spaceBarPressed || !store.getState().wallet.isConnected) {
             return;
         }
 
         this._overlay.setVisible(false);
-        this.setCellsInteractable(true);
+        this._overlayText.setVisible(false);
+        this.createCells(scene, gridSize);
         this.updateCellsView();
     }
 
@@ -88,6 +103,9 @@ export default class CellsGrid {
     }
 
     public setCellsInteractable(interactable: boolean): void {
+        if (this._grid === undefined) {
+            return;
+        }
         this._grid.forEach((row: Cell[]) => {
             row.forEach((cell: Cell) => {
                 cell.isInteractable = interactable;
