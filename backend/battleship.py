@@ -114,16 +114,19 @@ class BattleshipGame(Game):
         :param proof:
         :return:
         """
-        tx = self.contract.functions.initGame(
-            int(self._game_id),
-            *parse_proof(proof),
-        ).build_transaction({
-            "from": self.account.address,
-            "nonce": self.w3.eth.get_transaction_count(self.account.address),
-        })
-        signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
-        tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        logger.info(f"TX SENT {tx_hash.hex()} FROM GAME_INIT")
+        try:
+            tx = self.contract.functions.initGame(
+                int(self._game_id),
+                *parse_proof(proof),
+            ).build_transaction({
+                "from": self.account.address,
+                "nonce": self.w3.eth.get_transaction_count(self.account.address),
+            })
+            signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
+            tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+            logger.info(f"TX SENT {tx_hash.hex()} FROM GAME_INIT")
+        except Exception as e:
+            logger.error(f"TX FAILED {e}")
 
     def _zokrates_move_validator(self, coordinate, digest):
         """
@@ -173,21 +176,24 @@ class BattleshipGame(Game):
         :param result: int
         :return:
         """
-        logger.info(f'Sending transaction with result {result[1]} to contract')
-        tx = self.contract.functions.moveResult(
-            move_id,
-            result[0],  # Status code
-            game_id,
-            *parse_proof(proof)
-        ).build_transaction({
-            "from": self.account.address,
-            "nonce": self.w3.eth.get_transaction_count(self.account.address),
-        })
-        signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
-        tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        logger.info(f"tx sent {tx_hash.hex()} from move_result")
-        logger.info(f'transaction details'
-                    f'{self.w3.eth.wait_for_transaction_receipt(tx_hash)}')
+        try:
+            logger.info(f'Sending transaction with result {result[1]} to contract')
+            tx = self.contract.functions.moveResult(
+                move_id,
+                result[0],  # Status code
+                game_id,
+                *parse_proof(proof)
+            ).build_transaction({
+                "from": self.account.address,
+                "nonce": self.w3.eth.get_transaction_count(self.account.address),
+            })
+            signed_tx = self.w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
+            tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+            logger.info(f"tx sent {tx_hash.hex()} from move_result")
+            logger.info(f'transaction details'
+                        f'{self.w3.eth.wait_for_transaction_receipt(tx_hash)}')
+        except Exception as e:
+            logger.error(f"TX FAILED {e}")
 
     def player_move(self, value):
         """
